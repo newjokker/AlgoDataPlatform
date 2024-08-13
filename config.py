@@ -16,7 +16,6 @@ REDIS_KEY       = "ucd_json_info2"
 # server
 SERVER_HOST     = "0.0.0.0"
 SERVER_PORT     = 11101
-SERVER_IP       = "192.168.3.50" 
 
 
 r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=0)

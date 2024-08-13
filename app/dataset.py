@@ -198,15 +198,15 @@ async def upload_ucdataset(ucd_name:str, file: UploadFile = File(...)):
         return {"status": "success", "message": "upload file success"}
 
 @ucd_router.get("/get_json_info/official/{ucd_name:path}")
-def get_json_info_official(ucd_name:str):
+async def get_json_info_official(ucd_name:str):
     return get_json_file_info(ucd_name, is_official=True)
 
 @ucd_router.get("/get_json_info/customer/{ucd_name:path}")
-def get_json_info_official(ucd_name:str):
+async def get_json_info_official(ucd_name:str):
     return get_json_file_info(ucd_name, is_official=False)
 
 @ucd_router.get("/get_all_json_info_from_redis")
-def get_all_json_info_from_redis():
+async def get_all_json_info_from_redis():
 
     return_dict = {}
     info = r.hgetall(REDIS_KEY)
@@ -215,6 +215,9 @@ def get_all_json_info_from_redis():
         return_dict[each.decode("utf-8")] = info[each].decode("utf-8")
 
     return return_dict
+
+
+# TODO: redis 部分的代码不要使用 try 结构了，直接报错
 
 
 
