@@ -5,7 +5,9 @@ from app.dataset import ucd_router
 from app.app import app_router
 from app.logic import logic_router
 from app.model import model_router
-from config import SERVER_HOST, SERVER_IP, SERVER_PORT
+from app.document import doc_router
+
+from config import SERVER_HOST, SERVER_PORT
 
 
 app = FastAPI()
@@ -15,6 +17,7 @@ app.include_router(ucd_router)
 app.include_router(app_router)
 app.include_router(logic_router)
 app.include_router(model_router)
+app.include_router(doc_router)
 
 
 

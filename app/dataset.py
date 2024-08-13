@@ -4,7 +4,7 @@ import json
 from fastapi import APIRouter, File, UploadFile
 from fastapi.responses import FileResponse, Response
 from fastapi.exceptions import HTTPException
-from config import UCD_CUSTOMER_DIR, UCD_OFFICIAL_DIR, r, REDIS_KEY
+from config import UCD_CUSTOMER_DIR, UCD_OFFICIAL_DIR, r, REDIS_JSON_INFO
 from JoTools.utils.FileOperationUtil import FileOperationUtil
 from pydantic import BaseModel
 
@@ -91,30 +91,19 @@ def get_json_file_info_from_file(file_path):
     return file_info
 
 def save_json_info_to_redis(json_info, file_path):
-    try:
-        json_info_str = json.dumps(json_info)
-        r.hset(REDIS_KEY, file_path, json_info_str)
-    except Exception as e:
-        return {"error": e}
+    json_info_str = json.dumps(json_info)
+    r.hset(REDIS_JSON_INFO, file_path, json_info_str)
 
 def get_json_file_info_from_redis(file_path):
-    """先在 redis 中查询文件缓存是否存在，不存在的话创建缓存文件"""
-    try:
-        info = r.hget(REDIS_KEY, file_path)
-        if info is not None:
-            json_info = json.loads(info.decode("utf-8"))
-            return json_info
-        else:
-            return info
-    except Exception as e:
-        return {"error": e}
+    info = r.hget(REDIS_JSON_INFO, file_path)
+    if info is not None:
+        json_info = json.loads(info.decode("utf-8"))
+        return json_info
+    else:
+        return info
 
 def delete_info_from_redis(ucd_path):
-    # 新上传的文件在 redis 中删除对应的记录（如果有的话）
-    try:
-        r.hdel(REDIS_KEY, ucd_path)
-    except Exception as e:
-        print({"error": e})
+    r.hdel(REDIS_JSON_INFO, ucd_path)
 
 @ucd_router.get("/official/{ucd_name:path}")
 async def get_ucd_official_file(ucd_name:str):
@@ -209,7 +198,7 @@ async def get_json_info_official(ucd_name:str):
 async def get_all_json_info_from_redis():
 
     return_dict = {}
-    info = r.hgetall(REDIS_KEY)
+    info = r.hgetall(REDIS_JSON_INFO)
 
     for each in info.keys():
         return_dict[each.decode("utf-8")] = info[each].decode("utf-8")
@@ -217,7 +206,6 @@ async def get_all_json_info_from_redis():
     return return_dict
 
 
-# TODO: redis 部分的代码不要使用 try 结构了，直接报错
 
 
 
