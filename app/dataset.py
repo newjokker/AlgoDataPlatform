@@ -87,7 +87,7 @@ def get_json_file_info_from_file(file_path):
 
         file_info["size"] = f"{os.path.getsize(file_path)/(1024*1024):.2f} M"
 
-    save_json_info_to_redis(json_info, file_path)
+    save_json_info_to_redis(file_info, file_path)
     return file_info
 
 def save_json_info_to_redis(json_info, file_path):
