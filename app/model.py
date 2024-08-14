@@ -119,6 +119,9 @@ async def upload_model(model_name:str, file: UploadFile = File(...)):
 
 
 
+
+# TODO: 找到模型的训练数据集和对应的 config.ini 文件
+
 # TODO: load_model, 提供的是 svn 地址，或者模型的 md5
 
 # TODO: 已经下载的模型在本地应该有缓存

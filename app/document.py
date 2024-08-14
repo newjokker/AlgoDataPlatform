@@ -14,7 +14,7 @@ from pydantic import BaseModel
 doc_router = APIRouter(prefix="/doc", tags=["ucd"])
 
 
-
+# TODO: pingcode 的文档如何从外部读取， https://pingcode.tuxingkeji.com/open
 
 # TODO: 将文档也整合进来
 
