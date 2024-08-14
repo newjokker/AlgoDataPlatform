@@ -2,19 +2,19 @@
 import redis
 
 # common
-TEMP_DIR            = r"/home/ldq/Data/temp"
+TEMP_DIR            = r"/usr/data/temp"
 
 
 # ucd
-UCD_APP_DIR         = r"/home/ldq/Data/ucd_app"
-UC_IMG_DIR          = r"/home/ldq/Data/json_img"
-UCD_OFFICIAL_DIR    = r"/home/ldq/Data/official"
-UCD_CUSTOMER_DIR    = r"/home/ldq/Data/customer"
+UCD_APP_DIR         = r"/usr/data/ucd/app"
+UC_IMG_DIR          = r"/usr/data/ucd/json_img"
+UCD_OFFICIAL_DIR    = r"/usr/data/ucd/official"
+UCD_CUSTOMER_DIR    = r"/usr/data/ucd/customer"
 
 # redis
-REDIS_HOST          = "192.168.3.221"
+REDIS_HOST          = "127.0.0.1"
 REDIS_PORT          = 6379
-REDIS_JSON_INFO     = "ucd_json_info2"
+REDIS_JSON_INFO     = "ucd_json_info"
 REDIS_MODEL_INFO    = "svn_model_info"
 
 # server
@@ -28,7 +28,7 @@ SVN_PASSWORD        = "txkj"
 
 # model
 MODEL_SUFFIX_SET    = {".pth", ".pt", ".model", ".plan", ".om"}
-MODEL_CUSTOMER_DIR  = r"/home/ldq/Data/customer_model"
+MODEL_CUSTOMER_DIR  = r"/usr/data/model/customer"
 
 
 r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=0)

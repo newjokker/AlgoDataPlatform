@@ -1,9 +1,10 @@
 import os
 import random
 import shutil
-from fastapi import APIRouter
+from fastapi import APIRouter, File, UploadFile
 from fastapi.responses import FileResponse, Response
 from config import UC_IMG_DIR
+from fastapi.exceptions import HTTPException
 
 
 img_router = APIRouter(prefix="/file", tags=["img"])
@@ -29,10 +30,29 @@ async def download_uc_file(uc_suffix:str):
         return {"error": "suffix error, suffix must in ['.jpg', '.json']"}
 
 
+@img_router.post("/upload")
+async def upload_img_file(file: UploadFile = File(...)):
+    if ucd_name.endswith(".json"):
+        ucd_name = ucd_name[:-5]
+
+    save_ucd_path = os.path.join(UC_IMG_DIR, ucd_name + '.json')
+    contents = await file.read()
+
+    if os.path.exists(save_ucd_path):
+        return HTTPException(status_code=500, detail=f"{ucd_name} exists, change a new name")
+    else:
+        save_ucd_folder = os.path.split(save_ucd_path)[0]
+        os.makedirs(save_ucd_folder, exist_ok=True)
+
+        with open(save_ucd_path, "wb") as f:
+            f.write(contents)
+
+        return {"status": "success", "message": "upload file success"}
+
 
 # TODO: 支持入库的服务，但是需要权限，将入库的代码写小一点，不然太麻烦了
 
-
+# TODO: 旋转的代码无法入库，对数据进行处理，有数据无法出处理，直接返回错误即可
 
 
 
