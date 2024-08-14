@@ -6,8 +6,7 @@ TEMP_DIR            = r"/usr/data/temp"
 
 
 # ucd
-UCD_APP_DIR         = r"/home/ldq/Data/ucd_app"
-# UCD_APP_DIR         = r"/usr/data/ucd/app"
+UCD_APP_DIR         = r"/usr/data/ucd/app"
 UC_IMG_DIR          = r"/usr/data/ucd/json_img"
 UCD_OFFICIAL_DIR    = r"/usr/data/ucd/official"
 UCD_CUSTOMER_DIR    = r"/usr/data/ucd/customer"
