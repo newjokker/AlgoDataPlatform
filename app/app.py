@@ -1,5 +1,5 @@
 import os
-from fastapi import APIRouter
+from fastapi import APIRouter, UploadFile, File
 from JoTools.utils.FileOperationUtil import FileOperationUtil
 from config import UCD_APP_DIR
 from fastapi.responses import FileResponse
@@ -26,23 +26,52 @@ def get_version_list():
 
     return version_list
 
+def is_leagal_app_name(app_name):
+    if not app_name.startswith("ucd_v"):
+        return False
+    
+    app_v_list = app_name[5:].split(".")
+    if len(app_v_list) != 3:
+        return False
+    
+    for each_v in app_v_list:
+        if not each_v.isdigit():
+            return False
+        
+    return True
+
 @app_router.get("/versions")
 async def get_ucd_version_list():
     version_list = get_version_list()
     return {"ucd_version_info": version_list}
 
-@app_router.get("/load_app/{ucd_version}")
-async def get_ucd_app(ucd_version:str):
-    ucd_app_path = os.path.join(UCD_APP_DIR, "ucd_" + ucd_version)
+@app_router.get("/load/{app_version}")
+async def get_ucd_app(app_version:str):
+    ucd_app_path = os.path.join(UCD_APP_DIR, "ucd_" + app_version)
 
     if os.path.exists(ucd_app_path):
         return FileResponse(ucd_app_path)
     else:
         version_str = ",".join(get_version_list())
         return HTTPException(status_code=500, detail=f"version should in : [{version_str}]")
-    
 
-# TODO 支持上传 app 的接口，省得每次手动上传了
+@app_router.post("/upload/{app_name}")
+async def upload_ucdataset(app_name:str, file: UploadFile = File(...)):
+
+    if not is_leagal_app_name(app_name):
+        return HTTPException(status_code=500, detail=f"app_name : ucd_vx.y.z")
+
+    save_app_path = os.path.join(UCD_APP_DIR, app_name)
+    if os.path.exists(save_app_path):
+        return HTTPException(status_code=500, detail=f"app_name exists : {app_name}")
+
+    contents = await file.read()
+    with open(save_app_path, "wb") as f:
+        f.write(contents)
+
+    return {"status": "success", "message": "upload ucd app success"}
+
+
 
 
 

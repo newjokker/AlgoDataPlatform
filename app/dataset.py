@@ -172,11 +172,11 @@ async def upload_ucdataset(ucd_name:str, file: UploadFile = File(...)):
         ucd_name = ucd_name[:-5]
 
     save_ucd_path = os.path.join(UCD_CUSTOMER_DIR, ucd_name + '.json')
-    contents = await file.read()
 
     if os.path.exists(save_ucd_path):
         return HTTPException(status_code=500, detail=f"{ucd_name} exists, change a new name")
     else:
+        contents = await file.read()
         save_ucd_folder = os.path.split(save_ucd_path)[0]
         os.makedirs(save_ucd_folder, exist_ok=True)
 
