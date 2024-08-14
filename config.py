@@ -30,6 +30,10 @@ SVN_PASSWORD        = "txkj"
 MODEL_SUFFIX_SET    = {".pth", ".pt", ".model", ".plan", ".om"}
 MODEL_CUSTOMER_DIR  = r"/usr/data/model/customer"
 
+# ui server
+UI_HOST             = "0.0.0.0"
+UI_PORT             = 11102
+
 
 r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=0)
 

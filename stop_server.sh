@@ -30,13 +30,9 @@ else
 fi
 
 
-# FIXME 增加发送关闭请求
-
-curl "http://192.168.3.50:6006/terminate"
-
 echo "supervisord pid : $pid"
 terminate_children "$pid"
 kill "$pid" &> /dev/null
 
-ps -ef | grep python3
+ps -ef | grep python
 
