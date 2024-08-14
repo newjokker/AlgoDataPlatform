@@ -2,14 +2,14 @@ import os
 from fastapi import APIRouter
 from JoTools.utils.FileOperationUtil import FileOperationUtil
 from config import UCD_APP_DIR
-from fastapi.responses import FileResponse, Response
+from fastapi.responses import FileResponse
 from fastapi.exceptions import HTTPException
 
 
 
 app_router = APIRouter(prefix="/app", tags=["app"])
 
-async def get_version_list():
+def get_version_list():
     version_list = []
     version_dict = {}
 
@@ -26,13 +26,12 @@ async def get_version_list():
 
     return version_list
 
-@app_router.get("/ucd_version_list")
+@app_router.get("/versions")
 async def get_ucd_version_list():
-    """返回所有的在线版本"""
     version_list = get_version_list()
     return {"ucd_version_info": version_list}
 
-@app_router.get("/{ucd_version}")
+@app_router.get("/load_app/{ucd_version}")
 async def get_ucd_app(ucd_version:str):
     ucd_app_path = os.path.join(UCD_APP_DIR, "ucd_" + ucd_version)
 
