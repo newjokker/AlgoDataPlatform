@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source ~/.bash_aliases
+
 service redis-server start
 
 ./stop_server.sh
