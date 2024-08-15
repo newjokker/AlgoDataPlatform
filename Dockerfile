@@ -13,7 +13,8 @@ RUN pip install -i https://mirrors.aliyun.com/pypi/simple/ \
     uvicorn \
     fastapi \
     JoUtil \
-    python-multipart 
+    python-multipart \
+    gradio
 
 # 修改 train.py , dataloader.py
 COPY ./data/app                     /usr/src/app/app
@@ -22,6 +23,7 @@ COPY ./data/stop_server.sh          /usr/src/app
 COPY ./data/main.py                 /usr/src/app
 COPY ./data/confd.conf              /usr/src/app
 COPY ./data/config.py               /usr/src/app
+COPY ./data/ui_server.py            /usr/src/app
 COPY ./data/ucd                     /usr/src/app
 
 # 创建必要的文件夹
