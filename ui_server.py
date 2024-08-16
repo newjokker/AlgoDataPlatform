@@ -46,19 +46,36 @@ def load_info_from_json(ucd_path, is_official=True):
 # 创建 Gradio 界面
 with gr.Blocks() as demo:
     with gr.Row():
-        with gr.Column(scale=1):
+        with gr.Column(scale=3):
             update_dataset_button   = gr.Button('UpDate Info')
             
-            official_uc_dataset_dd           = gr.Dropdown(choices=[], label="official uc dataset", allow_custom_value=True, value="")
-            customer_uc_dataset_dd           = gr.Dropdown(choices=[], label="customer uc dataset", allow_custom_value=True, value="")
+            official_uc_dataset_dd      = gr.Dropdown(choices=[], label="official uc dataset", allow_custom_value=True, value="")
+            customer_uc_dataset_dd      = gr.Dropdown(choices=[], label="customer uc dataset", allow_custom_value=True, value="")
             
-            official_model_list_dd           = gr.Dropdown(choices=[], label="official model_list", allow_custom_value=True, value="")
-            customer_model_list_dd           = gr.Dropdown(choices=[], label="customer model_list", allow_custom_value=True, value="")
+            official_model_list_dd      = gr.Dropdown(choices=[], label="official model_list", allow_custom_value=True, value="")
+            customer_model_list_dd      = gr.Dropdown(choices=[], label="customer model_list", allow_custom_value=True, value="")
             
-            app_list_dd                      = gr.Dropdown(choices=[], label="app_list", allow_custom_value=True, value="")
+            app_list_dd                 = gr.Dropdown(choices=[], label="app_list", allow_custom_value=True, value="")
+            # intensity_slider            = gr.Slider(minimum=0, maximum=100, step=1, value=50, label="Intensity", info="info", interactive=True)
 
-        with gr.Column(scale=1):
-            response_train = gr.Textbox(label='info', lines=15, placeholder="wait...", interactive=False)
+
+            with gr.Row():
+                with gr.Column(scale=10):
+                    intensity_slider            = gr.Slider(minimum=0, maximum=100000, step=1, value=50, label="Intensity", interactive=True)
+                # with gr.Column(scale=1):
+                start_bt   = gr.Button('show', min_width=1)
+
+            with gr.Row():
+                a_bt   = gr.Button('load all img', min_width=1)
+                b_bt   = gr.Button('draw', min_width=1)
+                last_bt   = gr.Button('last', min_width=1)
+                next_bt   = gr.Button('next', min_width=1)
+
+
+        with gr.Column(scale=5):
+            outputs=gr.Image(type='filepath', label="处理后的图片", value=r"imgs/Zzz01cv.png"),
+            response_train = gr.Textbox(label='info', lines=5, placeholder="wait...", interactive=False)
+
 
     def update_dropdown_options():
         official_ucd_list, customer_ucd_list, official_model_list, customer_model_list = get_cache_list()
@@ -66,6 +83,9 @@ with gr.Blocks() as demo:
                 gr.Dropdown(choices=customer_ucd_list, interactive=True, value=""), \
                 gr.Dropdown(choices=official_model_list, interactive=True, value=""), \
                 gr.Dropdown(choices=customer_model_list, interactive=True, value="")
+
+    def change_slider(value):
+        return str(value)
 
 
     update_dataset_button.click(
@@ -85,18 +105,27 @@ with gr.Blocks() as demo:
         outputs=[response_train]
     )
 
+    last_bt.click(
+        fn=lambda x : x-1,
+        inputs=[intensity_slider],
+        outputs=[intensity_slider]
+    )
+
+    next_bt.click(
+        # 如何提前将周围的几张图片全部下载下来，缓存下来进行处理
+        fn=lambda x : x+1,
+        inputs=[intensity_slider],
+        outputs=[intensity_slider]
+    )
+
+
+    # 为了快速展示图像信息，可以将 shape 信息先转化为 xml 信息，再生成一个不带 shape 的 json，这样的话每一次不用读取完整的 json 信息了
+
 
 if __name__ == "__main__":
 
     HOST                    = "127.0.0.1"
 
-    demo.launch(server_name=UI_HOST, server_port=UI_PORT, share=False, debug=False)
-
-
-# TODO: 数据集可视化功能
-# （1）选着对应的数据集可以直接查看图片和结果，在网页上展示出来 
-# （2）可以操作选择需要看的标签进行筛选 
-# （3）标签是实时画出来的远程画出来之后进行推送
-
-# TODO: 数据集操作功能 （1）提供 ucd 的在线版本 （2）提供
+    # demo.launch(server_name=UI_HOST, server_port=UI_PORT, share=False, debug=False)
+    demo.launch(server_name=UI_HOST, server_port=8089, share=False, debug=False)
 
