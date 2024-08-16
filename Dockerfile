@@ -4,7 +4,8 @@ WORKDIR /usr/src/app
 
 # redis
 RUN apt-get update || true
-RUN apt-get install vim -y && apt-get install libglib2.0-0 -y && apt install libgl1-mesa-glx -y && apt-get install gcc -y && apt-get install supervisor && apt install redis -y
+RUN apt-get install libglib2.0-0 -y && apt install libgl1-mesa-glx -y && apt-get install gcc -y || true
+RUN apt-get install vim -y && apt-get install supervisor && apt install redis -y 
 RUN sed -i '69s/.*/bind 127.0.0.1/' /etc/redis/redis.conf
 
 # 安装 python 依赖包
