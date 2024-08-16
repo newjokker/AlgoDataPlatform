@@ -4,7 +4,7 @@ WORKDIR /usr/src/app
 
 # redis
 RUN apt-get update || true
-RUN apt install redis -y && apt-get install supervisor -y && apt-get install vim -y 
+RUN apt-get install vim -y && apt-get install libglib2.0-0 -y && apt install libgl1-mesa-glx -y && apt-get install gcc -y && apt-get install supervisor && apt install redis -y
 RUN sed -i '69s/.*/bind 127.0.0.1/' /etc/redis/redis.conf
 
 # 安装 python 依赖包
@@ -23,7 +23,7 @@ COPY ./data/stop_server.sh          /usr/src/app
 COPY ./data/main.py                 /usr/src/app
 COPY ./data/confd.conf              /usr/src/app
 COPY ./data/config.py               /usr/src/app
-COPY ./data/ui_server.py            /usr/src/app
+COPY ./data/ui_server_dataset.py    /usr/src/app
 COPY ./data/ucd                     /usr/src/app
 
 # 创建必要的文件夹

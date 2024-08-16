@@ -278,6 +278,8 @@ if __name__ == "__main__":
     global now_uc_list
     global color_dict
 
+    HOST = "127.0.0.1"
+
     now_uc_list = []
     now_dataset_name = "customer"
     color_dict = {}
