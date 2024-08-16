@@ -76,7 +76,7 @@ def get_img_path_by_uc(slider_index):
     img_path = os.path.join(UC_IMG_DIR, uc[:3], uc + ".jpg")
     return img_path
 
-# 创建 Gradio 界面
+
 with gr.Blocks() as demo:
 
     with gr.Row():
@@ -169,7 +169,8 @@ if __name__ == "__main__":
 
     img_list = os.listdir("./imgs")
 
-    # TODO: 加载的时候就获取所有可以展示的数据集，直接放到 dropdown 里面去
+    # TODO: 去掉上一个下一个的按钮，因为进度条可以直接展示
+    # TODO: 想想标签数据如何展示出来
 
 
     # demo.launch(server_name=UI_HOST, server_port=UI_PORT, share=False, debug=False)
