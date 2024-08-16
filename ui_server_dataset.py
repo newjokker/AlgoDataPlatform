@@ -12,10 +12,6 @@ import cv2
 from JoTools.txkjRes.deteRes import DeteRes
 from JoTools.utils.HashlibUtil import HashLibUtil
 
-UCD_OFFICIAL_DIR        = r"/home/ldq/Data/official"
-UCD_CUSTOMER_DIR        = r"/home/ldq/Data/customer"
-UC_IMG_DIR              = r"/home/ldq/Data/json_img"
-TEMP_DIR                = r"/home/ldq/Data/temp"
 
 
 def load_img_if_not_exists(uc):
@@ -277,7 +273,6 @@ with gr.Blocks() as demo:
 
 if __name__ == "__main__":
 
-    HOST                    = "127.0.0.1"
 
     global now_dataset_name
     global now_uc_list
