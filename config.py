@@ -33,6 +33,8 @@ MODEL_CUSTOMER_DIR  = r"/usr/data/model/customer"
 # ui server
 UI_HOST             = "0.0.0.0"
 UI_PORT             = 11102
+UI_DATASET_PORT     = 11103
+IMG_RESIZE_MAX      = 1500          # resize image 的时候允许的最长边的长度
 
 
 r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=0)

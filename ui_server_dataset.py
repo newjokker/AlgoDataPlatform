@@ -2,16 +2,16 @@
 import gradio as gr
 import requests
 import json
+import shutil
 import time
-from config import UI_PORT, UI_HOST, SERVER_PORT, TEMP_DIR
+import random
+from config import UI_HOST, SERVER_PORT, TEMP_DIR, UCD_CUSTOMER_DIR, UCD_OFFICIAL_DIR, UC_IMG_DIR, UI_DATASET_PORT, IMG_RESIZE_MAX
 import os
 from JoTools.utils.JsonUtil import JsonUtil
 import cv2 
 from JoTools.txkjRes.deteRes import DeteRes
 from JoTools.utils.HashlibUtil import HashLibUtil
 
-HOST                    = "127.0.0.1"
-SERVER_PORT             = 11101
 UCD_OFFICIAL_DIR        = r"/home/ldq/Data/official"
 UCD_CUSTOMER_DIR        = r"/home/ldq/Data/customer"
 UC_IMG_DIR              = r"/home/ldq/Data/json_img"
@@ -55,6 +55,9 @@ def get_customer_cache_list():
 def load_info_from_json(ucd_path):
 
     global now_dataset_name
+    global color_dict
+
+    color_dict = {}
 
     load_dataset_info(ucd_path=ucd_path)
 
@@ -71,6 +74,9 @@ def load_info_from_json(ucd_path):
     for each_tag in count_tags_info:
         return_info += f"    {each_tag} : {count_tags_info[each_tag]}\n"
         tags.append(each_tag)
+        each_color = [random.randint(30, 255), random.randint(30, 255), random.randint(30, 255)]
+        color_dict[each_tag] = each_color
+
     return return_info, gr.Slider(minimum=0, maximum=int(uc_count)-1, step=1, value=0, label="Intensity", interactive=True)
 
 def load_dataset_info(ucd_path):
@@ -87,14 +93,10 @@ def load_dataset_info(ucd_path):
     now_uc_list = json_info["uc_list"]
     return f"load dataset info success : {len(now_uc_list)}"
 
-def get_img_path_by_uc(slider_index):
-    global now_uc_list
-    uc = now_uc_list[slider_index]
-    img_path = os.path.join(UC_IMG_DIR, uc[:3], uc + ".jpg")
-    return img_path
-
 def get_img_numpy_by_uc(slider_index, json_path):
     global now_uc_list
+    global color_dict
+
     uc = now_uc_list[slider_index]
 
     # FIXME: 在 33 服务器的原始数据备份之后直接使用原始数据，这边就可以去掉了
@@ -110,8 +112,6 @@ def get_img_numpy_by_uc(slider_index, json_path):
         img_numpy = cv2.imread(resize_img_path)
     else:
         img_numpy = cv2.imread(img_path)
-
-    img_numpy = cv2.imread(img_path)
 
     if now_dataset_name == "customer":
         json_path = os.path.join(UCD_CUSTOMER_DIR, json_path + ".json")
@@ -130,15 +130,13 @@ def get_img_numpy_by_uc(slider_index, json_path):
 
     h, w = img_numpy.shape[:2]
 
-    max_side = 1000
     ratio = 1
-    if max(h, w) > max_side:
+    if max(h, w) > IMG_RESIZE_MAX:
         if h > w:
-            ratio = h / max_side
+            ratio = h / IMG_RESIZE_MAX
         else:
-            ratio = w / max_side
+            ratio = w / IMG_RESIZE_MAX
 
-        # 将所有的框进行调整
         b = DeteRes()
         for each_obj in a:
             b.add_obj(int(each_obj.x1/ratio), int(each_obj.y1/ratio), int(each_obj.x2/ratio), \
@@ -149,11 +147,11 @@ def get_img_numpy_by_uc(slider_index, json_path):
         cv2.imwrite(resize_img_path, img_numpy)
 
         b.img_ndarry = img_numpy
-        img_numpy = b.draw_dete_res(save_path="")
+        img_numpy = b.draw_dete_res(save_path="", color_dict=color_dict)
         img_numpy = cv2.cvtColor(img_numpy, cv2.COLOR_RGB2BGR)
     else:
         a.img_ndarry = img_numpy
-        img_numpy = a.draw_dete_res(save_path="")
+        img_numpy = a.draw_dete_res(save_path="", color_dict=color_dict)
         img_numpy = cv2.cvtColor(img_numpy, cv2.COLOR_RGB2BGR)
 
     info = f"{uc}\n"
@@ -201,30 +199,45 @@ def save_json_to_xml(json_path):
                 yield  f"progress : {index} / {uc_count}"
                 start_time = time.time()
 
-    return f"progress : {uc_count} / {uc_count}  finished"
+    yield gr.update(value=f"progress : {uc_count} / {uc_count}  finished")
+
+def clear_json_xml(json_path):
+
+    if now_dataset_name == "customer":
+        json_path = os.path.join(UCD_CUSTOMER_DIR, json_path + ".json")
+    else:
+        json_path = os.path.join(UCD_OFFICIAL_DIR, json_path + ".json")
+    
+    json_name_md5 = HashLibUtil.get_str_md5(json_path)
+
+    save_json_xml_dir = os.path.join(TEMP_DIR, "ucd_xml", json_name_md5)
+    
+    if os.path.exists(save_json_xml_dir):
+        shutil.rmtree(save_json_xml_dir)
+    return f"clear shape info (.xml) success"
+
 
 with gr.Blocks() as demo:
 
     with gr.Row():
         with gr.Column(scale=4):
-            # output_img=gr.Image(type='filepath', label="处理后的图片", height=700, width=1200)
-            output_img=gr.Image(type='numpy', label="处理后的图片", height=700, width=1200)
+            output_img=gr.Image(type='numpy', label="", height=700, width=1200)
         
         with gr.Column(scale=1):
             with gr.Row():
-                official_bt    = gr.Button(value="Official", min_width=1)
-                customer_bt    = gr.Button(value="Customer", min_width=1)
-            dataset_info    = gr.Dropdown(label="dataset", choices=[])
-            show_platform   = gr.Textbox(label='info', placeholder="", interactive=False, min_width=1, lines=22)
+                official_bt     = gr.Button(value="Official", min_width=1)
+                customer_bt     = gr.Button(value="Customer", min_width=1)
+            dataset_info        = gr.Dropdown(label="dataset", choices=[])
+            show_platform       = gr.Textbox(label='info', placeholder="", interactive=False, min_width=1, lines=24)
 
     with gr.Row():
         with gr.Column(scale=10):
-            intensity_slider            = gr.Slider(minimum=0, maximum=100000, step=1, value=50, label="Intensity", interactive=True)
+            intensity_slider            = gr.Slider(minimum=0, maximum=100, step=1, value=50, label="uc slider", interactive=True)
         # with gr.Column(scale=1):
-        start_bt   = gr.Button('load shape info', min_width=1)
+        load_shape_bt   = gr.Button('load shape info', min_width=1)
+        clean_shape_bt   = gr.Button('clear shape info', min_width=1)
 
     intensity_slider.change(
-        # fn=get_img_path_by_uc,
         fn=get_img_numpy_by_uc,
         inputs=[intensity_slider, dataset_info],
         outputs=[output_img, show_platform]
@@ -246,10 +259,16 @@ with gr.Blocks() as demo:
         outputs=[show_platform, intensity_slider]
     )
 
-    # 将 json 中的 xml 保存下来用于快速画图
-    start_bt.click(
+    load_shape_bt.click(
         show_progress=True,
         fn=save_json_to_xml,
+        inputs=[dataset_info],
+        outputs=[show_platform]
+    )
+
+    clean_shape_bt.click(
+        show_progress=True,
+        fn=clear_json_xml,
         inputs=[dataset_info],
         outputs=[show_platform]
     )
@@ -259,24 +278,14 @@ with gr.Blocks() as demo:
 if __name__ == "__main__":
 
     HOST                    = "127.0.0.1"
-    SERVER_PORT             = 11101
 
     global now_dataset_name
     global now_uc_list
+    global color_dict
 
     now_uc_list = []
     now_dataset_name = "customer"
+    color_dict = {}
 
-    img_list = os.listdir("./imgs")
-
-    # TODO: 想想标签数据如何展示出来
-    # TODO: 为了快速展示图像信息，可以将 shape 信息先转化为 xml 信息，再生成一个不带 shape 的 json，这样的话每一次不用读取完整的 json 信息了
-    # TODO: 为了快速展示，哪些比较大的图像是有压缩后的版本的，优先进行压缩
-
-    # TODO: resize 之后再去画图，这样的话就不会出现框出现问题了
-
-    # TODO: md5_json_name 的获取方式有问题，因为可能会出现重复的情况
-
-    # demo.launch(server_name=UI_HOST, server_port=UI_PORT, share=False, debug=False)
-    demo.launch(server_name=UI_HOST, server_port=8089, share=False, debug=False)
+    demo.launch(server_name=UI_HOST, server_port=UI_DATASET_PORT, share=False, debug=False)
 
