@@ -11,8 +11,12 @@ from JoTools.utils.JsonUtil import JsonUtil
 import cv2 
 from JoTools.txkjRes.deteRes import DeteRes
 from JoTools.utils.HashlibUtil import HashLibUtil
+from PIL import Image
 
-
+def get_image_size(image_path):
+    with Image.open(image_path) as img:
+        width, height = img.size
+        return width, height
 
 def load_img_if_not_exists(uc):
     url = f"http://192.168.3.111:11101/file/{uc}.jpg"
@@ -100,14 +104,10 @@ def get_img_numpy_by_uc(slider_index, json_path):
 
     img_path = os.path.join(UC_IMG_DIR, uc[:3], uc + ".jpg")
 
+    w, h = get_image_size(img_path)
+
     resize_img_dir = os.path.join(TEMP_DIR, "resize_img", uc[:3])
     os.makedirs(resize_img_dir, exist_ok=True)
-    resize_img_path = os.path.join(resize_img_dir, uc + ".jpg")
-
-    if os.path.exists(resize_img_path):
-        img_numpy = cv2.imread(resize_img_path)
-    else:
-        img_numpy = cv2.imread(img_path)
 
     if now_dataset_name == "customer":
         json_path = os.path.join(UCD_CUSTOMER_DIR, json_path + ".json")
@@ -119,12 +119,11 @@ def get_img_numpy_by_uc(slider_index, json_path):
     save_redize_img_dir = os.path.join(TEMP_DIR, "resize_img")
     os.makedirs(save_redize_img_dir, exist_ok=True)
     each_xml_path = os.path.join(save_json_xml_dir, uc + ".xml")
+    
     if os.path.exists(each_xml_path):
         a = DeteRes(each_xml_path)
     else:
         a = DeteRes()
-
-    h, w = img_numpy.shape[:2]
 
     ratio = 1
     if max(h, w) > IMG_RESIZE_MAX:
@@ -138,14 +137,19 @@ def get_img_numpy_by_uc(slider_index, json_path):
             b.add_obj(int(each_obj.x1/ratio), int(each_obj.y1/ratio), int(each_obj.x2/ratio), \
                       int(each_obj.y2/ratio), conf=each_obj.conf, tag=each_obj.tag)
 
-        img_numpy = cv2.resize(img_numpy, (int(w/ratio), int(h/ratio)))
-
-        cv2.imwrite(resize_img_path, img_numpy)
+        resize_img_path = os.path.join(resize_img_dir, uc + ".jpg")
+        if os.path.exists(resize_img_path):
+            img_numpy = cv2.imread(resize_img_path)
+        else:
+            img_numpy = cv2.imread(img_path)
+            img_numpy = cv2.resize(img_numpy, (int(w/ratio), int(h/ratio)))
+            cv2.imwrite(resize_img_path, img_numpy)
 
         b.img_ndarry = img_numpy
         img_numpy = b.draw_dete_res(save_path="", color_dict=color_dict)
         img_numpy = cv2.cvtColor(img_numpy, cv2.COLOR_RGB2BGR)
     else:
+        img_numpy = cv2.imread(img_path)
         a.img_ndarry = img_numpy
         img_numpy = a.draw_dete_res(save_path="", color_dict=color_dict)
         img_numpy = cv2.cvtColor(img_numpy, cv2.COLOR_RGB2BGR)
@@ -153,6 +157,8 @@ def get_img_numpy_by_uc(slider_index, json_path):
     info = f"{uc}\n"
     for each_info in a.get_fzc_format():
         info += f"{each_info}\n"
+
+    print(img_numpy.shape)
 
     return img_numpy, info
 
@@ -227,6 +233,7 @@ with gr.Blocks() as demo:
             show_platform       = gr.Textbox(label='info', placeholder="", interactive=False, min_width=1, lines=24)
 
     with gr.Row():
+        # choose_uc = gr.Dropdown(interactive=True, allow_custom_value=False)
         with gr.Column(scale=10):
             intensity_slider            = gr.Slider(minimum=0, maximum=100, step=1, value=50, label="uc slider", interactive=True)
         # with gr.Column(scale=1):
@@ -273,6 +280,7 @@ with gr.Blocks() as demo:
 
 if __name__ == "__main__":
 
+    # 删除之前的缓存 resize 图片，因为可能会出现不同时间的缓存的 resize 不一致的情况
 
     global now_dataset_name
     global now_uc_list
