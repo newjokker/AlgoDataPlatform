@@ -12,6 +12,8 @@ import cv2
 from JoTools.txkjRes.deteRes import DeteRes
 from JoTools.utils.HashlibUtil import HashLibUtil
 from PIL import Image
+from prettytable import PrettyTable
+
 
 def get_image_size(image_path):
     with Image.open(image_path) as img:
@@ -155,10 +157,11 @@ def get_img_numpy_by_uc(slider_index, json_path):
         img_numpy = cv2.cvtColor(img_numpy, cv2.COLOR_RGB2BGR)
 
     info = f"{uc}\n"
-    for each_info in a.get_fzc_format():
-        info += f"{each_info}\n"
+    info += f"  weigth : {w}\n  height : {h}\n\n"
 
-    print(img_numpy.shape)
+    info += f"{'tag'.ljust(8)}{'x1'.ljust(6)}{'y1'.ljust(6)}{'x2'.ljust(6)}{'y2'.ljust(6)}{'conf'.ljust(6)}\n"
+    for each_info in a:
+        info += f"{each_info.tag.ljust(8)}{str(each_info.x1).ljust(6)}{str(each_info.y1).ljust(6)}{str(each_info.x2).ljust(6)}{str(each_info.y2).ljust(6)}{format(each_info.conf, '.2f').ljust(6)}\n"
 
     return img_numpy, info
 
@@ -280,7 +283,9 @@ with gr.Blocks() as demo:
 
 if __name__ == "__main__":
 
-    # 删除之前的缓存 resize 图片，因为可能会出现不同时间的缓存的 resize 不一致的情况
+    # TODO: gradio 加载宽度较大的图片的时候会自动进行裁剪，如何去掉这块
+    # TODO: 增加选项直接查看某一个 UC 的图片的选项
+    # TODO: 增加删除缓存的 resize 图片的选项
 
     global now_dataset_name
     global now_uc_list
