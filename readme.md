@@ -4,6 +4,12 @@
 
 * docker run -p 11101:11101 -p 11102:11102 -v /home/ldq/Data/ucd_app:/usr/data/ucd/app -v /home/ldq/Data/json_img:/usr/data/ucd/json_img -v /home/ldq/Data/official:/usr/data/ucd/official -v /home/ldq/Data/customer:/usr/data/ucd/customer -v /home/ldq/Data/temp:/usr/data/temp -v /home/ldq/Data/customer_model:/usr/data/model/customer --name ad_platform -d algo_data_platform:v0.1.5
 
+### 镜像打包流程
+
+* git clone ssh://git@192.168.3.108:2022/aigroup/algodataplatform.git
+
+* docker build -t algo_data_platform:version -f Dockerfile . 
+
 ### 版本号码
 
 * v0.0.x  初步实现数据平台，可视化只是个 demo
