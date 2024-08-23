@@ -40,3 +40,8 @@ iface = gr.Interface(
 
 iface.launch(server_name="0.0.0.0")
 
+# 创建一个随机数组 
+# random_array = np.random.randint(0, 256, size=(100, 100, 3), dtype=np.uint8)
+
+
+

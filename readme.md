@@ -2,7 +2,7 @@
 
 ### 镜像启动命令
 
-* docker run -p 11101:11101 -p 11102:11102 -v /home/ldq/Data/ucd_app:/usr/data/ucd/app -v /home/ldq/Data/json_img:/usr/data/ucd/json_img -v /home/ldq/Data/official:/usr/data/ucd/official -v /home/ldq/Data/customer:/usr/data/ucd/customer -v /home/ldq/Data/temp:/usr/data/temp -v /home/ldq/Data/customer_model:/usr/data/model/customer --name ad_platform -d algo_data_platform:v0.0.7
+* docker run -p 11101:11101 -p 11102:11102 -v /home/ldq/Data/ucd_app:/usr/data/ucd/app -v /home/ldq/Data/json_img:/usr/data/ucd/json_img -v /home/ldq/Data/official:/usr/data/ucd/official -v /home/ldq/Data/customer:/usr/data/ucd/customer -v /home/ldq/Data/temp:/usr/data/temp -v /home/ldq/Data/customer_model:/usr/data/model/customer --name ad_platform -d algo_data_platform:v0.1.5
 
 ### 版本号码
 
@@ -13,7 +13,7 @@
 
 ### TODO
 
-* 增加可视化界面
+* dockerfile 修改直接 gitclone 然后执行 dockerfile 就能打包，不需要修改文件路径之类的，不需要的文件可以增加 .dockerignore
 
 * pingcode 集成进来
 
