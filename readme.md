@@ -19,6 +19,8 @@
 
 ### TODO
 
+* 写一个标签的服务，专门管理所有的标签。
+
 * dockerfile 修改直接 gitclone 然后执行 dockerfile 就能打包，不需要修改文件路径之类的，不需要的文件可以增加 .dockerignore
 
 * pingcode 集成进来

@@ -152,10 +152,11 @@ with gr.Blocks() as demo:
             with gr.Row():
                 add_tag_button  = gr.Button(value="Add Tag", min_width=1)
                 del_tag_button  = gr.Button(value="Del Tag", min_width=1)
+                rem_tag_button  = gr.Button(value="Remove Tag", min_width=1)
             
-            tags_text           = gr.Textbox(label='Tags', lines=1, placeholder="", interactive=False)
+            tags_text           = gr.Textbox(label='Tag Name', lines=1, placeholder="", interactive=False)
+            tags_des_text       = gr.Textbox(label='Tag Describe', lines=1, placeholder="", interactive=False)
             create_tag          = gr.Button(value='Create Tag', min_width=1)
-
 
     def update_dropdown_options():
         official_ucd_list = get_cache_list()
@@ -167,8 +168,11 @@ with gr.Blocks() as demo:
         outputs=[info_text, tags_text]
     )
 
+    create_tag.click(
+        fn=create_tag,
+        inputs=[all_tags_dd],
+    )
 
-    # 为了快速展示图像信息，可以将 shape 信息先转化为 xml 信息，再生成一个不带 shape 的 json，这样的话每一次不用读取完整的 json 信息了
 
 
 if __name__ == "__main__":
