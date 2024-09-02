@@ -36,6 +36,14 @@ UI_PORT             = 11103
 UI_DATASET_PORT     = 11102
 IMG_RESIZE_MAX      = 1500          # resize image 的时候允许的最长边的长度
 
+# Mysql
+MYSQL_HOST                = "192.168.3.33"
+MYSQL_PORT                = 3306
+MYSQL_USER                = "root"
+MYSQL_PASSWORD            = "root123"
+# MYSQL_DATABASE_NAME       = "Saturn_Database_V1"
+MYSQL_DATABASE_NAME       = "SaturnTest"
+
 
 r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=0)
 
