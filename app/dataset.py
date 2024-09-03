@@ -7,12 +7,11 @@ from fastapi.exceptions import HTTPException
 from config import UCD_CUSTOMER_DIR, UCD_OFFICIAL_DIR, r, REDIS_JSON_INFO
 from JoTools.utils.FileOperationUtil import FileOperationUtil
 from pydantic import BaseModel
+from typing import List
 
 ucd_router = APIRouter(prefix="/ucd", tags=["ucd"])
 
-
-def get_json_file_info(ucd_name, is_official=True):
-
+def _get_json_path(ucd_name, is_official:bool):
     ucd_name = str(ucd_name).strip('"')
     
     if not ucd_name.endswith(".json"):
@@ -22,6 +21,11 @@ def get_json_file_info(ucd_name, is_official=True):
         file_path = os.path.join(UCD_OFFICIAL_DIR, ucd_name)
     else:
         file_path = os.path.join(UCD_CUSTOMER_DIR, ucd_name)
+    return file_path
+
+def get_json_file_info(ucd_name, is_official=True):
+
+    file_path = _get_json_path(ucd_name, is_official)
 
     if not os.path.exists(file_path):
         return HTTPException(status_code=500, detail=f"can't find json path : {file_path}")
@@ -109,10 +113,7 @@ def delete_info_from_redis(ucd_path):
 async def get_ucd_official_file(ucd_name:str):
     """下载 ucd, 返回的是文件无法在浏览器中直接查看"""
     
-    if not ucd_name.endswith(".json"):
-        ucd_name = ucd_name + ".json"
-
-    ucd_official_path = os.path.join(UCD_OFFICIAL_DIR, ucd_name)
+    ucd_official_path = _get_json_path(ucd_name, is_official=True)
 
     print(ucd_official_path)
 
@@ -125,10 +126,7 @@ async def get_ucd_official_file(ucd_name:str):
 async def get_ucd_customer_file(ucd_name:str):
     """下载 ucd, 返回的是文件无法在浏览器中直接查看"""
     
-    if not ucd_name.endswith(".json"):
-        ucd_name = ucd_name + ".json"
-
-    ucd_customer_path = os.path.join(UCD_CUSTOMER_DIR, ucd_name)
+    ucd_customer_path = _get_json_path(ucd_name, is_official=False)
 
     if os.path.exists(ucd_customer_path):
         return FileResponse(ucd_customer_path, media_type = "application/json", filename=ucd_name)
@@ -154,10 +152,7 @@ async def check_ucdataset():
 @ucd_router.get("/delete/{ucd_name:path}")
 def delete_ucdataset(ucd_name:str):
 
-    if not ucd_name.endswith(".json"):
-        ucd_name += ".json"
-
-    ucd_path = os.path.join(UCD_CUSTOMER_DIR, ucd_name)
+    ucd_path = _get_json_path(ucd_name, is_official=False)
 
     if os.path.exists(ucd_path):
         os.remove(ucd_path)
@@ -171,7 +166,7 @@ async def upload_ucdataset(ucd_name:str, file: UploadFile = File(...)):
     if ucd_name.endswith(".json"):
         ucd_name = ucd_name[:-5]
 
-    save_ucd_path = os.path.join(UCD_CUSTOMER_DIR, ucd_name + '.json')
+    save_ucd_path = _get_json_path(ucd_name, is_official=False)
 
     if os.path.exists(save_ucd_path):
         return HTTPException(status_code=500, detail=f"{ucd_name} exists, change a new name")
@@ -204,6 +199,29 @@ async def get_all_json_info_from_redis():
         return_dict[each.decode("utf-8")] = info[each].decode("utf-8")
 
     return return_dict
+
+class AddTagInfo(BaseModel):
+    tags: List[str]
+    is_official: bool
+    ucd_name: str
+
+@ucd_router.post("/add_tags")
+async def add_tags_to_json(add_info:AddTagInfo):
+    # 对 json 增加标签
+    tags = add_info.tags
+    is_official = add_info.is_official
+    ucd_name = add_info.ucd_name
+
+    json_path = _get_json_path(ucd_name, is_official)
+
+    if not os.path.exists(json_path):
+        raise HTTPException(status_code=500, detail=f"json path not exist : {json_path}")
+
+    with open(json_path, 'r', encoding="utf-8") as json_file:
+        json_info = json.load(json_file)
+
+
+    # 读取 json 信息，再去保存 json 信息
 
 
 
