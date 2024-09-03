@@ -20,6 +20,7 @@ REDIS_MODEL_INFO    = "svn_model_info"
 # server
 SERVER_HOST         = "0.0.0.0"
 SERVER_PORT         = 11106
+SERVER_LOCAL_HOST   = "127.0.0.1"
 
 # svn
 SVN_ROOT            = r"svn://192.168.3.101/repository"
@@ -43,6 +44,10 @@ MYSQL_USER                = "root"
 MYSQL_PASSWORD            = "root123"
 # MYSQL_DATABASE_NAME       = "Saturn_Database_V1"
 MYSQL_DATABASE_NAME       = "SaturnTest"
+MYSQL_TABLE_NAME          = "UcdJsonTag"
+
+# log
+LOG_DIR                 = "./logs"
 
 
 r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=0)

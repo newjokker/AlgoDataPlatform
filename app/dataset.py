@@ -12,6 +12,16 @@ from JoTools.utils.JsonUtil import JsonUtil
 
 ucd_router = APIRouter(prefix="/ucd", tags=["ucd"])
 
+class GetTagInfo(BaseModel):
+    is_official: bool
+    ucd_name: str
+
+class UpdateTagInfo(BaseModel):
+    tags: List[str]
+    is_official: bool
+    ucd_name: str
+
+
 def _get_json_path(ucd_name, is_official:bool):
     ucd_name = str(ucd_name).strip('"')
     
@@ -63,7 +73,6 @@ def get_json_file_info_from_file(file_path):
             "model_name": "",
             "model_version": "",
             "update_time": "",
-            "tags": "",
         }
 
         for each in file_info:
@@ -90,6 +99,11 @@ def get_json_file_info_from_file(file_path):
             file_info["uc_count"] = str(len(json_info["uc_list"]))
         else:
             file_info["uc_count"] = "0"
+
+        if "tags" in json_info:
+            file_info["tags"] = json_info["tags"]
+        else:
+            file_info["tags"] = []
 
         file_info["size"] = f"{os.path.getsize(file_path)/(1024*1024):.2f} M"
 
@@ -202,19 +216,13 @@ async def get_all_json_info_from_redis():
 
     return return_dict
 
-class AddTagInfo(BaseModel):
-    tags: List[str]
-    is_official: bool
-    ucd_name: str
-
-@ucd_router.post("/add_tags")
-async def add_tags_to_json(add_info:AddTagInfo):
+@ucd_router.post("/update_tags")
+async def update_tags_to_json(update_info:UpdateTagInfo):
     # 对 json 增加标签
-    tags = add_info.tags
-    tags = set(tags)
+    tags = update_info.tags
     
-    is_official = add_info.is_official
-    ucd_name = add_info.ucd_name
+    is_official = update_info.is_official
+    ucd_name = update_info.ucd_name
     json_path = _get_json_path(ucd_name, is_official)
 
     if not os.path.exists(json_path):
@@ -223,22 +231,19 @@ async def add_tags_to_json(add_info:AddTagInfo):
     json_info = {}
     with open(json_path, 'r', encoding="utf-8") as json_file:
         json_info = json.load(json_file)
-        tags_origin = json_info.get("tags", set())
-        new_tags = tags.union(tags_origin)
-        json_info["tags"] = list(new_tags)
+        json_info["tags"] = list(tags)
 
     with open(json_path, 'w', encoding="utf-8") as json_file:
         json.dump(json_info, json_file, indent=4)
 
-    return {"status": "success"}
+    # 删除 redis 中的数据，这样就会自动进行更新了
+    ucd_path = _get_json_path(ucd_name, is_official=True)
+    delete_info_from_redis(ucd_path)
 
-class GetTagInfo(BaseModel):
-    is_official: bool
-    ucd_name: str
+    return {"status": "success"}
 
 @ucd_router.get("/get_tags")
 async def get_tags_from_json(get_info:GetTagInfo):
-    # 对 json 增加标签
 
     is_official = get_info.is_official
     ucd_name = get_info.ucd_name

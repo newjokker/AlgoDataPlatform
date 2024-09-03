@@ -5,7 +5,7 @@ import json
 import shutil
 import time
 import random
-from config import UI_HOST, SERVER_PORT, TEMP_DIR, UCD_CUSTOMER_DIR, UCD_OFFICIAL_DIR, UC_IMG_DIR, UI_DATASET_PORT, IMG_RESIZE_MAX
+from config import UI_HOST, LOG_DIR, SERVER_LOCAL_HOST, SERVER_PORT, TEMP_DIR, UCD_CUSTOMER_DIR, UCD_OFFICIAL_DIR, UC_IMG_DIR, UI_DATASET_PORT, IMG_RESIZE_MAX
 import os
 from JoTools.utils.JsonUtil import JsonUtil
 import cv2 
@@ -13,6 +13,10 @@ from JoTools.txkjRes.deteRes import DeteRes
 from JoTools.utils.HashlibUtil import HashLibUtil
 from PIL import Image
 from prettytable import PrettyTable
+from JoTools.utils.LogUtil import LogUtil
+
+log_path = os.path.join(LOG_DIR, "UI.log")
+log = LogUtil.get_log(log_path, 5, "ui_server_dataset", print_to_console=False)
 
 
 def get_image_size(image_path):
@@ -39,7 +43,7 @@ def get_official_cache_list():
     global now_dataset_name
     now_dataset_name = "official"
 
-    url = f"http://{HOST}:{SERVER_PORT}/ucd/check"
+    url = f"http://{SERVER_LOCAL_HOST}:{SERVER_PORT}/ucd/check"
     response = requests.get(url, headers={'Content-Type': 'application/json'})
     official_ucd_list = json.loads(response.text)["official"]
     return gr.Dropdown(choices=official_ucd_list, label="dataset", interactive=True)
@@ -49,7 +53,7 @@ def get_customer_cache_list():
     global now_dataset_name
     now_dataset_name = "customer"
 
-    url = f"http://{HOST}:{SERVER_PORT}/ucd/check"
+    url = f"http://{SERVER_LOCAL_HOST}:{SERVER_PORT}/ucd/check"
     response = requests.get(url, headers={'Content-Type': 'application/json'})
     customer_ucd_list = json.loads(response.text)["customer"]
     return gr.Dropdown(choices=customer_ucd_list, label="dataset", interactive=True)
@@ -64,7 +68,7 @@ def load_info_from_json(ucd_path):
     load_dataset_info(ucd_path=ucd_path)
 
     file_type = now_dataset_name
-    url = f"http://{HOST}:{SERVER_PORT}/ucd/get_json_info/{file_type}/{ucd_path}"
+    url = f"http://{SERVER_LOCAL_HOST}:{SERVER_PORT}/ucd/get_json_info/{file_type}/{ucd_path}"
     response = requests.get(url, headers={'Content-Type': 'application/json'})
     info = json.loads(response.text)
     tags            = []
@@ -290,8 +294,6 @@ if __name__ == "__main__":
     global now_dataset_name
     global now_uc_list
     global color_dict
-
-    HOST = "127.0.0.1"
 
     now_uc_list = []
     now_dataset_name = "customer"
