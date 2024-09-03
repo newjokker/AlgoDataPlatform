@@ -8,6 +8,7 @@ from config import UCD_CUSTOMER_DIR, UCD_OFFICIAL_DIR, r, REDIS_JSON_INFO
 from JoTools.utils.FileOperationUtil import FileOperationUtil
 from pydantic import BaseModel
 from typing import List
+from JoTools.utils.JsonUtil import JsonUtil
 
 ucd_router = APIRouter(prefix="/ucd", tags=["ucd"])
 
@@ -62,6 +63,7 @@ def get_json_file_info_from_file(file_path):
             "model_name": "",
             "model_version": "",
             "update_time": "",
+            "tags": "",
         }
 
         for each in file_info:
@@ -209,21 +211,26 @@ class AddTagInfo(BaseModel):
 async def add_tags_to_json(add_info:AddTagInfo):
     # 对 json 增加标签
     tags = add_info.tags
+    tags = set(tags)
+    
     is_official = add_info.is_official
     ucd_name = add_info.ucd_name
-
     json_path = _get_json_path(ucd_name, is_official)
 
     if not os.path.exists(json_path):
         raise HTTPException(status_code=500, detail=f"json path not exist : {json_path}")
 
+    json_info = {}
     with open(json_path, 'r', encoding="utf-8") as json_file:
         json_info = json.load(json_file)
+        tags_origin = json_info.get("tags", set())
+        new_tags = tags.union(tags_origin)
+        json_info["tags"] = list(new_tags)
 
+    with open(json_path, 'w', encoding="utf-8") as json_file:
+        json.dump(json_info, json_file, indent=4)
 
-    # 读取 json 信息，再去保存 json 信息
-
-
+    return {"status": "success"}
 
 
 

@@ -66,6 +66,11 @@ def delete_tag_info_from_mysql(tag_name):
             # print("MySQL connection is closed")
 
 def add_tag_info_to_mysql(tag, description):
+
+    if tag == "":
+        print(f"* add tag failed, tag is empty : {tag}")
+        return 
+
     try:
         connection = pymysql.connect(
             host=MYSQL_HOST,  
@@ -126,12 +131,17 @@ def load_info_from_json(ucd_path, is_official=True):
 def get_tags_from_json():
     pass
 
-def add_tag_to_json(json_path, tag_name):
-    pass
+def add_tag_to_json(ucd_name, tag_name):
+    url = f"http://{HOST}:{SERVER_PORT}/ucd/add_tags"
+    data = {"ucd_name": ucd_name, "is_official": True, "tags": [tag_name]}
+    response = requests.post(url, json=data, headers={'Content-Type': 'application/json'})
+    info = json.loads(response.text)
+    print(info)
 
 def delete_tag_from_json():
-    pass
-
+    url = f"http://{HOST}:{SERVER_PORT}/ucd/get_json_info/{file_type}/{ucd_path}"
+    response = requests.get(url, headers={'Content-Type': 'application/json'})
+    info = json.loads(response.text)
 
 official_ucd_list = get_cache_list()
 
@@ -174,7 +184,7 @@ with gr.Blocks() as demo:
             return gr.Dropdown(choices=tags, label="Select Tag", allow_custom_value=False, value=tags[0])
 
     def add_tag_info(ucd_name, tag_name):
-        add_tag_to_json()
+        add_tag_to_json(ucd_name, tag_name)
 
 
     with gr.Row():
@@ -229,17 +239,18 @@ with gr.Blocks() as demo:
     add_tag_button.click(
         fn=add_tag_info,
         inputs=[official_uc_dataset_dd, select_tags_dd],
-        outputs=[tag_info_text],
+        # outputs=[tag_info_text],
     )
 
 
 
 if __name__ == "__main__":
 
+    # TODO: 标签的获取需要一个新的方式，需要直接读取文件，因为标签会经常变化，或者强制刷新 redis 的信息
+
+
 
     # demo.launch(server_name=UI_HOST, server_port=UI_PORT, share=False, debug=False)
-    demo.launch(server_name=UI_HOST, server_port=8089, share=False, debug=False)
-
-
+    demo.launch(server_name=UI_HOST, server_port=UI_PORT, share=False, debug=False)
 
 

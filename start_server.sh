@@ -8,7 +8,7 @@ service redis-server start
 
 supervisord -c ./confd.conf
 
-tail -f /dev/null
+# tail -f /dev/null
 
 
 

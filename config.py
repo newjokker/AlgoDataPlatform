@@ -19,7 +19,7 @@ REDIS_MODEL_INFO    = "svn_model_info"
 
 # server
 SERVER_HOST         = "0.0.0.0"
-SERVER_PORT         = 11101
+SERVER_PORT         = 11106
 
 # svn
 SVN_ROOT            = r"svn://192.168.3.101/repository"
@@ -32,7 +32,7 @@ MODEL_CUSTOMER_DIR  = r"/usr/data/model/customer"
 
 # ui server
 UI_HOST             = "0.0.0.0"
-UI_PORT             = 11103
+UI_PORT             = 11105
 UI_DATASET_PORT     = 11102
 IMG_RESIZE_MAX      = 1500          # resize image 的时候允许的最长边的长度
 
