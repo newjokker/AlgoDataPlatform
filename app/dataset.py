@@ -232,6 +232,27 @@ async def add_tags_to_json(add_info:AddTagInfo):
 
     return {"status": "success"}
 
+class GetTagInfo(BaseModel):
+    is_official: bool
+    ucd_name: str
+
+@ucd_router.get("/get_tags")
+async def get_tags_from_json(get_info:GetTagInfo):
+    # 对 json 增加标签
+
+    is_official = get_info.is_official
+    ucd_name = get_info.ucd_name
+    json_path = _get_json_path(ucd_name, is_official)
+
+    if not os.path.exists(json_path):
+        raise HTTPException(status_code=500, detail=f"json path not exist : {json_path}")
+
+    tags = []
+    with open(json_path, 'r', encoding="utf-8") as json_file:
+        json_info = json.load(json_file)
+        tags = json_info.get("tags", [])
+
+    return {"tags": tags}
 
 
 

@@ -6,6 +6,8 @@ from app.app import app_router
 from app.logic import logic_router
 from app.model import model_router
 from app.document import doc_router
+from app.tags import tag_router
+from app.labels import label_router
 
 from config import SERVER_HOST, SERVER_PORT
 
@@ -18,7 +20,8 @@ app.include_router(app_router)
 app.include_router(logic_router)
 app.include_router(model_router)
 app.include_router(doc_router)
-
+app.include_router(tag_router)
+app.include_router(label_router)
 
 
 if __name__ == "__main__":

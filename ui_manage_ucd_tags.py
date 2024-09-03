@@ -102,10 +102,13 @@ def get_cache_list():
     return official_ucd_list
 
 def load_info_from_official_json(ucd_path):
-    return load_info_from_json(ucd_path, is_official=True)
-
-def load_info_from_customer_json(ucd_path):
-    return load_info_from_json(ucd_path, is_official=False)
+    json_info = load_info_from_json(ucd_path, is_official=True)
+    url = f"http://{HOST}:{SERVER_PORT}/ucd/get_tags"
+    data = {"ucd_name": ucd_path, "is_official": True}
+    response = requests.get(url, json=data, headers={'Content-Type': 'application/json'})
+    info = json.loads(response.text)
+    tags = ", ".join(info["tags"])
+    return json_info, tags
 
 def load_info_from_json(ucd_path, is_official=True):
     file_type = "official" if is_official else "customer"
@@ -126,12 +129,17 @@ def load_info_from_json(ucd_path, is_official=True):
     return_tags = ""
     for each_tag in tags:
         return_tags += f"{each_tag},"
-    return return_info, return_tags
+    return return_info
 
 def get_tags_from_json():
     pass
 
 def add_tag_to_json(ucd_name, tag_name):
+    
+    if tag_name == "":
+        print("* tag is empty")
+        return 
+    
     url = f"http://{HOST}:{SERVER_PORT}/ucd/add_tags"
     data = {"ucd_name": ucd_name, "is_official": True, "tags": [tag_name]}
     response = requests.post(url, json=data, headers={'Content-Type': 'application/json'})
@@ -248,6 +256,9 @@ if __name__ == "__main__":
 
     # TODO: 标签的获取需要一个新的方式，需要直接读取文件，因为标签会经常变化，或者强制刷新 redis 的信息
 
+    # TODO: 获取文件大小，当文件大于 100M 不能进行属性操作
+
+    # TODO: add tag 之后需要修改 redis 中相关的内容，更新让到 redis 中的信息，或者删除也行，让下次主动获取
 
 
     # demo.launch(server_name=UI_HOST, server_port=UI_PORT, share=False, debug=False)
