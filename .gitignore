@@ -4,6 +4,7 @@
 # ignore all .pyc and .pyo .pyd file
 *.pyc
 *.py[cod]
+*.pdf
 
 # ignore folder : idea
 .idea/

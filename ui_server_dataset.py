@@ -5,7 +5,7 @@ import json
 import shutil
 import time
 import random
-from config import UI_HOST, LOG_DIR, SERVER_LOCAL_HOST, SERVER_PORT, TEMP_DIR, UCD_CUSTOMER_DIR, UCD_OFFICIAL_DIR, UC_IMG_DIR, UI_DATASET_PORT, IMG_RESIZE_MAX
+from config import UI_HOST, LOG_DIR, UI_LOG_NAME, SERVER_LOCAL_HOST, SERVER_PORT, TEMP_DIR, UCD_CUSTOMER_DIR, UCD_OFFICIAL_DIR, UC_IMG_DIR, UI_DATASET_PORT, IMG_RESIZE_MAX
 import os
 from JoTools.utils.JsonUtil import JsonUtil
 import cv2 
@@ -15,7 +15,7 @@ from PIL import Image
 from prettytable import PrettyTable
 from JoTools.utils.LogUtil import LogUtil
 
-log_path = os.path.join(LOG_DIR, "UI.log")
+log_path = os.path.join(LOG_DIR, UI_LOG_NAME)
 log = LogUtil.get_log(log_path, 5, "ui_server_dataset", print_to_console=False)
 
 

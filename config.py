@@ -48,7 +48,8 @@ MYSQL_TABLE_NAME          = "UcdJsonTag"
 
 # log
 LOG_DIR                 = "./logs"
-
+UI_LOG_NAME             = "ui.log"
+APP_LOG_NAME            = "app.log"
 
 r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=0)
 

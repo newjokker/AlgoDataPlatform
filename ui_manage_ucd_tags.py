@@ -6,13 +6,13 @@ import gradio as gr
 import requests
 import json
 import yaml
-from config import UI_PORT, UI_HOST, SERVER_PORT, SERVER_LOCAL_HOST, LOG_DIR
+from config import UI_PORT, UI_HOST, SERVER_PORT, SERVER_LOCAL_HOST, LOG_DIR, UI_LOG_NAME
 import socket
 import os
 import copy
 from JoTools.utils.LogUtil import LogUtil
 
-log_path = os.path.join(LOG_DIR, "UI.log")
+log_path = os.path.join(LOG_DIR, UI_LOG_NAME)
 log = LogUtil.get_log(log_path, 5, "ui_manage_ucd_tags", print_to_console=False)
 
 
@@ -20,23 +20,27 @@ def get_tag_info_from_mysql():
     url_get_tag_info    = f"http://{SERVER_LOCAL_HOST}:{SERVER_PORT}/tag/get_tags"
     response = requests.get(url_get_tag_info)
     tag_info = json.loads(response.text)
+    log.info(f"* get tag info from mysql")
     return tag_info
 
 def add_tag_info_to_mysql(tag_name, tag_desc):
     url = f"http://{SERVER_LOCAL_HOST}:{SERVER_PORT}/tag/add_tag"
     data = {"tag_name": tag_name, "tag_describe": tag_desc}
     response = requests.post(url, json=data)  
+    log.info(f"* add tag to mysql : {tag_name}")
     return response 
 
 def delete_tag_info_from_mysql(tag_name):
     url_delete_tag      = f"http://{SERVER_LOCAL_HOST}:{SERVER_PORT}/tag/delete_tag"
     response = requests.post(url_delete_tag, json={"tag_name": tag_name})
+    log.info(f"* remove tag from mysql : {tag_name}")
     return response
 
 def get_cache_list():
     url = f"http://{SERVER_LOCAL_HOST}:{SERVER_PORT}/ucd/check"
     response = requests.get(url, headers={'Content-Type': 'application/json'})
     official_ucd_list = json.loads(response.text)["official"]
+    log.info(f"* get ucd name list from official")
     return official_ucd_list
 
 def load_info_from_json(ucd_path, is_official=True):
@@ -44,6 +48,7 @@ def load_info_from_json(ucd_path, is_official=True):
     url = f"http://{SERVER_LOCAL_HOST}:{SERVER_PORT}/ucd/get_json_info/{file_type}/{ucd_path}"
     response = requests.get(url, headers={'Content-Type': 'application/json'})
     info = json.loads(response.text)
+    log.info(f"* load info from json : {ucd_path}")
     # tags            = []
     count_tags_info = info.get("count_tags_info", {})
     file_size       = info.get("size", "null")
@@ -60,13 +65,6 @@ def load_info_from_json(ucd_path, is_official=True):
         return_tags += f"{each_tag},"
     return return_info, info
 
-def get_tags_from_json():
-    pass
-
-def delete_tag_from_json():
-    url = f"http://{SERVER_LOCAL_HOST}:{SERVER_PORT}/ucd/get_json_info/{file_type}/{ucd_path}"
-    response = requests.get(url, headers={'Content-Type': 'application/json'})
-    info = json.loads(response.text)
 
 official_ucd_list = get_cache_list()
 
@@ -124,6 +122,7 @@ with gr.Blocks() as demo:
         global json_file_tags
         if tag_name != "":
             json_file_tags.add(tag_name)
+            log.info(f"* add tag {tag_name} for current json : {select_ucd_name} (not save to file)")
         return ",".join(json_file_tags)
 
     def del_tag_info(tag_name):
@@ -145,11 +144,14 @@ with gr.Blocks() as demo:
             return gr.Dropdown(choices=tags, label="Select Tag", allow_custom_value=False, value=tags[0])
 
     def save_tag_to_json(ucd_name):
+        global origin_file_tags
         url = f"http://{SERVER_LOCAL_HOST}:{SERVER_PORT}/ucd/update_tags"
         data = {"ucd_name": ucd_name, "is_official": True}
         global json_file_tags
         data["tags"] = list(json_file_tags)
         response = requests.post(url, json=data, headers={'Content-Type': 'application/json'})
+        log.info(f"* save tags {json_file_tags} -> json : {ucd_name}")
+        origin_file_tags = copy.deepcopy(json_file_tags)
         return "save success"
 
     def load_info_from_official_json(ucd_name):
@@ -164,7 +166,6 @@ with gr.Blocks() as demo:
             # 标签做了改变采取修改源文件
             if origin_file_tags != json_file_tags:
                 save_tag_to_json(select_ucd_name)
-                log.info(f"* Auto save tags -> json : {ucd_name}")
 
         json_file_tags = set(json_info["tags"])
         origin_file_tags = copy.deepcopy(json_file_tags)
@@ -249,8 +250,6 @@ if __name__ == "__main__":
     # TODO: 增加一个对当前集合操作的 log
 
     # TODO: 获取文件大小，当文件大于 100M 不能进行属性操作
-
-    log.info("* start server")
 
     # demo.launch(server_name=UI_HOST, server_port=UI_PORT, share=False, debug=False)
     demo.launch(server_name=UI_HOST, server_port=UI_PORT, share=False, debug=False)

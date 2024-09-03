@@ -1,9 +1,15 @@
 from fastapi import APIRouter
-from config import MYSQL_USER, MYSQL_PASSWORD, MYSQL_HOST, MYSQL_PORT, MYSQL_DATABASE_NAME, MYSQL_TABLE_NAME
+from config import MYSQL_USER, LOG_DIR, MYSQL_PASSWORD, MYSQL_HOST, APP_LOG_NAME, MYSQL_DATABASE_NAME, MYSQL_TABLE_NAME
 from fastapi.exceptions import HTTPException
 import pymysql
 from typing import List
 from pydantic import BaseModel
+import os
+
+from JoTools.utils.LogUtil import LogUtil
+
+log_path = os.path.join(LOG_DIR, APP_LOG_NAME)
+log = LogUtil.get_log(log_path, 5, "tags", print_to_console=False)
 
 
 tag_router = APIRouter(prefix="/tag", tags=["tag"])
@@ -35,9 +41,10 @@ def get_tag_info_from_mysql():
             rows = cursor.fetchall()
             for each in rows:
                 tag_info[each["tag"]] = each["tag_describe"]
+        log.info("* get tag info from mysql")
         return tag_info
     except pymysql.MySQLError as e:
-        print(f"Error while connecting to MySQL: {e}")
+        log.info(f"* Error while connecting to MySQL: {e}")
         raise HTTPException(500, f"Error while connecting to MySQL: {e}")
     finally:
         if connection:
@@ -59,8 +66,8 @@ def delete_tag_info_from_mysql(dete_tag:DeteteTag):
             sql = f"DELETE FROM {MYSQL_TABLE_NAME} WHERE tag = %s"
             cursor.execute(sql, (tag_name,))
             connection.commit()
-            print(f"* Tag '{tag_name}' has been deleted.")
-    
+            log.info(f"* Tag '{tag_name}' has been deleted.")
+
     except pymysql.MySQLError as e:
         connection.rollback()
         print(f"Error while deleting tag: {e}")
@@ -76,16 +83,19 @@ def add_tag_info_to_mysql(add_tag_info:AddTagInfo):
     tag_describe = add_tag_info.tag_describe
 
     if tag_name == "" or tag_describe == "":
+        log.error("* tag_name or tag_describe is empty")
         raise HTTPException(500, "tag_name or tag_describe is empty")
 
     if " " in tag_name:
+        log.error("* have space in tag_name")
         raise HTTPException(500, "have space in tag_name")
 
     if "," in tag_name:
+        log.error("* have ',' in tag_name")
         raise HTTPException(500, "have ',' in tag_name")
 
     if tag_name == "":
-        print(f"* add tag failed, tag is empty : {tag_name}")
+        log.info(f"* add tag failed, tag is empty : {tag_name}")
         raise HTTPException(500, "tag_name is empty")
 
     try:
@@ -102,14 +112,13 @@ def add_tag_info_to_mysql(add_tag_info:AddTagInfo):
             sql = f"INSERT INTO {MYSQL_TABLE_NAME} (tag, tag_describe) VALUES (%s, %s)"
             cursor.execute(sql, (tag_name, tag_describe))
             connection.commit()
-            print(f"* Tag '{tag_name}' has been added successfully with ID {cursor.lastrowid}.")
+            log.info(f"* Tag '{tag_name}' has been added successfully")
             return {"status": "success"}
 
     except pymysql.MySQLError as e:
         connection.rollback()
-        print(f"Error while adding tag: {e}")
+        log.error(f"* Error while adding tag: {e}")
     finally:
         if connection:
             connection.close()
-            # print("MySQL connection is closed")
 
