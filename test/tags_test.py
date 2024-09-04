@@ -6,6 +6,7 @@ import json
 
 
 LOCAL_SERVER_HOST = "192.168.3.50"
+# LOCAL_SERVER_HOST = "127.0.0.1"
 
 class Test_TestIncrementDecrement(unittest.TestCase):
     
@@ -27,6 +28,7 @@ class Test_TestIncrementDecrement(unittest.TestCase):
         data = {"tag_name": random_tag_name, "tag_describe": "test tag name : test"}
         response = requests.post(url, json=data)     
         print(f"* add tag : {random_tag_name}")
+        print(url)
         self.assertEqual(response.status_code, 200)
         # get 
         url_get_tag_info    = f"http://{LOCAL_SERVER_HOST}:{SERVER_PORT}/tag/get_tags"
