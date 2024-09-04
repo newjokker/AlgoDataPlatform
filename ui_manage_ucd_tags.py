@@ -6,7 +6,7 @@ import gradio as gr
 import requests
 import json
 import yaml
-from config import UI_PORT, UI_HOST, SERVER_PORT, SERVER_LOCAL_HOST, LOG_DIR, UI_LOG_NAME
+from config import UI_TAGS_PORT, UI_HOST, SERVER_PORT, SERVER_LOCAL_HOST, LOG_DIR, UI_LOG_NAME
 import socket
 import os
 import copy
@@ -180,7 +180,7 @@ with gr.Blocks() as demo:
         with gr.Column(scale=6):
             official_uc_dataset_dd      = gr.Dropdown(choices=official_ucd_list, label="official uc dataset")
             intensity_slider            = gr.Slider(minimum=0, maximum=100, step=1, value=50, label="uc slider", interactive=True)
-            output_img=gr.Image(type='numpy', label="", height=700, width=1200)
+            output_img=gr.Image(type='numpy', label="", height=600, width=1000, interactive=False)
             
         with gr.Column(scale=4):
             json_info_text      = gr.Textbox(label='Json Info', lines=5, placeholder="wait...", interactive=False)
@@ -247,11 +247,7 @@ if __name__ == "__main__":
 
     # TODO: 当刚读取的标签和最后的标签不变的时候，不去修改
 
-    # TODO: 增加一个对当前集合操作的 log
-
-    # TODO: 获取文件大小，当文件大于 100M 不能进行属性操作
-
-    # demo.launch(server_name=UI_HOST, server_port=UI_PORT, share=False, debug=False)
-    demo.launch(server_name=UI_HOST, server_port=UI_PORT, share=False, debug=False)
+    log.info(f"* start server {UI_HOST}:{UI_TAGS_PORT}")
+    demo.launch(server_name=UI_HOST, server_port=UI_TAGS_PORT, share=False, debug=False)
 
 

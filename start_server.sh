@@ -1,12 +1,14 @@
 #!/bin/bash
 
+rm -r ./logs/*
+mkdir -p ./logs
+mkdir -p ./logs/supervisord
+
 source ~/.bash_aliases
 
 service redis-server start
 
 ./stop_server.sh
-
-rm ./logs/*
 
 supervisord -c ./confd.conf
 

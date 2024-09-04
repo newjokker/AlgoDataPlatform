@@ -230,7 +230,7 @@ with gr.Blocks() as demo:
 
     with gr.Row():
         with gr.Column(scale=4):
-            output_img=gr.Image(type='numpy', label="", height=700, width=1200)
+            output_img=gr.Image(type='numpy', label="", height=700, width=1200, interactive=False)
         
         with gr.Column(scale=1):
             with gr.Row():
@@ -299,5 +299,6 @@ if __name__ == "__main__":
     now_dataset_name = "customer"
     color_dict = {}
 
+    log.info(f"* start server {UI_HOST}:{UI_DATASET_PORT}")
     demo.launch(server_name=UI_HOST, server_port=UI_DATASET_PORT, share=False, debug=False)
 
