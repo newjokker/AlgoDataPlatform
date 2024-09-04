@@ -8,6 +8,7 @@ from app.model import model_router
 from app.document import doc_router
 from app.tags import tag_router
 from app.labels import label_router
+from app.customerfile import customer_file_router
 
 from config import SERVER_HOST, SERVER_PORT
 
@@ -22,6 +23,7 @@ app.include_router(model_router)
 app.include_router(doc_router)
 app.include_router(tag_router)
 app.include_router(label_router)
+app.include_router(customer_file_router)
 
 
 if __name__ == "__main__":

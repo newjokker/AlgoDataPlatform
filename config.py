@@ -11,6 +11,10 @@ UC_IMG_DIR          = r"/usr/data/ucd/json_img"
 UCD_OFFICIAL_DIR    = r"/usr/data/ucd/official"
 UCD_CUSTOMER_DIR    = r"/usr/data/ucd/customer"
 
+# customer file
+CUSTOMER_FILE_DIR   = r"/usr/data/customer_file"
+
+
 # redis
 REDIS_HOST          = "127.0.0.1"
 REDIS_PORT          = 6379
