@@ -42,10 +42,11 @@ def get_tag_info_from_mysql():
             for each in rows:
                 tag_info[each["tag"]] = each["tag_describe"]
         log.info("* get tag info from mysql")
-        return tag_info
+        return {"status": "success", "tag_info": tag_info}  
     except pymysql.MySQLError as e:
-        log.info(f"* Error while connecting to MySQL: {e}")
-        raise HTTPException(500, f"Error while connecting to MySQL: {e}")
+        log.error(f"* Error while connecting to MySQL: {e}")
+        # raise HTTPException(500, f"Error while connecting to MySQL: {e}")
+        return {"status": "failed", "error_info": f"Error while connecting to MySQL: {e}"} 
     finally:
         if connection:
             connection.close()
@@ -67,10 +68,12 @@ def delete_tag_info_from_mysql(dete_tag:DeteteTag):
             cursor.execute(sql, (tag_name,))
             connection.commit()
             log.info(f"* Tag '{tag_name}' has been deleted.")
+            return {"status": "success"}
 
     except pymysql.MySQLError as e:
         connection.rollback()
-        print(f"Error while deleting tag: {e}")
+        log.error(f"Error while deleting tag: {e}")
+        return {"status": "failed", "error_info": f"Error while deleting tag: {e}"}
     finally:
         if connection:
             connection.close()
@@ -82,21 +85,25 @@ def add_tag_info_to_mysql(add_tag_info:AddTagInfo):
     tag_name = add_tag_info.tag_name
     tag_describe = add_tag_info.tag_describe
 
-    if tag_name == "" or tag_describe == "":
-        log.error("* tag_name or tag_describe is empty")
-        raise HTTPException(500, "tag_name or tag_describe is empty")
-
-    if " " in tag_name:
-        log.error("* have space in tag_name")
-        raise HTTPException(500, "have space in tag_name")
-
-    if "," in tag_name:
-        log.error("* have ',' in tag_name")
-        raise HTTPException(500, "have ',' in tag_name")
+    if tag_describe == "":
+        log.error("* tag_describe is empty")
+        # raise HTTPException(500, "tag_name or tag_describe is empty")
+        return {"status": "failed", "error_info": "tag_describe is empty"}
 
     if tag_name == "":
         log.info(f"* add tag failed, tag is empty : {tag_name}")
-        raise HTTPException(500, "tag_name is empty")
+        # raise HTTPException(500, "tag_name is empty")
+        return {"status": "failed", "error_info": "tag_name is empty"}
+
+    if " " in tag_name:
+        log.error("* have space in tag_name")
+        # raise HTTPException(500, "have space in tag_name")
+        return {"status": "failed", "error_info": "have space in tag_name"}
+
+    if "," in tag_name:
+        log.error("* have ',' in tag_name")
+        # raise HTTPException(500, "have ',' in tag_name")
+        return {"status": "failed", "error_info": "have ',' in tag_name"}
 
     try:
         connection = pymysql.connect(
@@ -109,6 +116,14 @@ def add_tag_info_to_mysql(add_tag_info:AddTagInfo):
         )
 
         with connection.cursor() as cursor:
+            check_sql = f"SELECT * FROM {MYSQL_TABLE_NAME} WHERE tag = %s"
+            cursor.execute(check_sql, (tag_name,))
+            existing_tag = cursor.fetchone()
+
+            if existing_tag:
+                log.error(f"* Tag '{tag_name}' already exists")
+                return {"status": "failed", "error_info": f"Tag '{tag_name}' already exists"}
+
             sql = f"INSERT INTO {MYSQL_TABLE_NAME} (tag, tag_describe) VALUES (%s, %s)"
             cursor.execute(sql, (tag_name, tag_describe))
             connection.commit()

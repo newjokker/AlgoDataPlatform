@@ -20,21 +20,37 @@ def get_tag_info_from_mysql():
     url_get_tag_info    = f"http://{SERVER_LOCAL_HOST}:{SERVER_PORT}/tag/get_tags"
     response = requests.get(url_get_tag_info)
     tag_info = json.loads(response.text)
-    log.info(f"* get tag info from mysql")
-    return tag_info
+
+    if tag_info["status"] == "success":
+        log.info(f"* get tag info from mysql")
+        return tag_info["tag_info"]
+    else:
+        log.error(f"* get tag info failed, error info : {tag_info['error_info']}")
+        raise gr.Error(f"* get tag info failed, error info : {tag_info['error_info']}")
 
 def add_tag_info_to_mysql(tag_name, tag_desc):
     url = f"http://{SERVER_LOCAL_HOST}:{SERVER_PORT}/tag/add_tag"
     data = {"tag_name": tag_name, "tag_describe": tag_desc}
-    response = requests.post(url, json=data)  
-    log.info(f"* add tag to mysql : {tag_name}")
-    return response 
+    response = requests.post(url, json=data)
+    response = json.loads(response.text)
+    if response["status"] == "success":
+        log.info(f"* add tag to mysql : {tag_name}")
+        return response
+    else:
+        log.error(f"* add tag info failed, error info : {response['error_info']}")
+        raise gr.Error(f"* add tag info failed, error info : {response['error_info']}")
 
 def delete_tag_info_from_mysql(tag_name):
     url_delete_tag      = f"http://{SERVER_LOCAL_HOST}:{SERVER_PORT}/tag/delete_tag"
     response = requests.post(url_delete_tag, json={"tag_name": tag_name})
-    log.info(f"* remove tag from mysql : {tag_name}")
-    return response
+    response = json.loads(response.text)
+
+    if response["status"] == "success":
+        log.info(f"* remove tag from mysql : {tag_name}")
+        return response
+    else:
+        log.error(f"* remove tag info failed, error info : {response['error_info']}")
+        raise gr.Error(f"* remove tag info failed, error info : {response['error_info']}")
 
 def get_cache_list():
     url = f"http://{SERVER_LOCAL_HOST}:{SERVER_PORT}/ucd/check"
@@ -244,8 +260,6 @@ with gr.Blocks() as demo:
 
 
 if __name__ == "__main__":
-
-    # TODO: 当刚读取的标签和最后的标签不变的时候，不去修改
 
     log.info(f"* start server {UI_HOST}:{UI_TAGS_PORT}")
     demo.launch(server_name=UI_HOST, server_port=UI_TAGS_PORT, share=False, debug=False)
