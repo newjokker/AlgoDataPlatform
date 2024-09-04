@@ -73,7 +73,9 @@ class Label(object):
         pass
 
     def save_to_html(self):
-        pass
+        html = markdown2.markdown("markdown_text")
+        log.info(html)
+        return HTMLResponse(content=html, status_code=200)
 
     def save_to_json(self):
         # 保存为 json 格式，用于方便在 http 上进行存储
@@ -119,11 +121,7 @@ async def update_label(label_info:LabelInfo):
 @label_router.get("/show_label_info/label_name")
 async def show_label_info(label_name:str):
     # 将 lable 转为读取为 html 的方式进行返回
-
-
-    
     pass
-
 
 
 
