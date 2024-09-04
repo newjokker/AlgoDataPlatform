@@ -14,6 +14,8 @@ UCD_CUSTOMER_DIR    = r"/usr/data/ucd/customer"
 # customer file
 CUSTOMER_FILE_DIR   = r"/usr/data/customer_file"
 
+# label
+LABEL_DIR           = r"/usr/data/labels"
 
 # redis
 REDIS_HOST          = "127.0.0.1"
@@ -54,6 +56,8 @@ MYSQL_TABLE_NAME          = "UcdJsonTag"
 LOG_DIR                 = "./logs"
 UI_LOG_NAME             = "ui.log"
 APP_LOG_NAME            = "app.log"
+
+
 
 r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=0)
 
