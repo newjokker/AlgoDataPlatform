@@ -1,6 +1,8 @@
 
 
-USE SaturnTest;
+CREATE DATABASE SaturnTag;
+
+USE SaturnTag;
 
 CREATE TABLE UcdJsonTag (
     tag CHAR(200) NOT NULL,
