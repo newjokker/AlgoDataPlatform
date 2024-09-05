@@ -15,6 +15,10 @@ SERVER_LOCAL_HOST = "192.168.3.50"
 SERVER_PORT = 11106
 
 
+# TODO: 将统计信息这一块进行完善
+
+
+
 class Label(object):
 
     def __init__(self, json_file_path=""):
@@ -23,6 +27,9 @@ class Label(object):
         self.describe       = None
         self.attention      = set()
         self.pic_describe   = []                # （图片的说明，图片的地址直接计算上传的图片的 md5 即可）
+        self.add_time       = None
+        self.update_tme     = None
+        self.stastic_info   = {}                # 存放统计信息，这个可以放在 redis 里面，需要打印的时候进行获取
         self.load_from_json_file(json_file_path)
 
     def add_pic_describe(self, describe, image_path):
@@ -94,32 +101,23 @@ class Label(object):
         with open(r"/usr/code/app/tag.html", "r", encoding="utf-8") as file:
             temp = file.read()
 
+            # 标题
+            temp = temp.replace("english_name", str(self.english_name))
+            temp = temp.replace("chinese_name", str(self.chinese_name))
+            temp = temp.replace("describe", str(self.describe))
+
+            # 
             attention_str = ""
             for each_attention in self.attention:
-                attention_str += f"* {each_attention} \n"
+                attention_str += f"<ul><li>{each_attention}</li></ul>\n"
+            temp = temp.replace("attention_str", attention_str)
 
+            # 
             pic_str = ""
             for each_des, each_url in self.pic_describe:
-                pic_str += f"""
-<p>{each_des}</p>
-<p><img src="{each_url}" alt="" class="mw_img_center" style="width:500px;display: block; clear:both; margin: 0 auto;"/>
-"""
+                pic_str += f"""<p>{each_des}</p><p><img src="{each_url}" alt="" class="mw_img_center" style="width:500px;display: block; clear:both; margin: 0 auto;"/>\n"""
+            temp = temp.replace("pic_describr_str", pic_str)
 
-        md_str = f"""
-# {self.english_name}
-
-### {self.english_name} : {self.chinese_name}
-
-### describe
-
-{self.describe}
-
-### attention 
-
-{attention_str}
-
-{pic_str}
-"""
         return temp
 
     def save_to_html(self):
@@ -134,7 +132,7 @@ class Label(object):
             "chinese_name"  : self.chinese_name,
             "describe"      : self.describe,
             "attention"     : list(self.attention),
-            "pic_describe"  : self.pic_describe
+            "pic_describe"  : self.pic_describe,
         }
         return json_info
 

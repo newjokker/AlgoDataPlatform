@@ -52,11 +52,15 @@ async def show_label_info(label_name:str):
     # 将 lable 转为读取为 html 的方式进行返回
 
     label_path = os.path.join(LABEL_DIR, f"{label_name}.json")
-    a = Label()
-    a.load_from_json_file(label_path)
-    html = a.save_to_html_str()
-    # html = markdown2.markdown(markdown_text)
-    return HTMLResponse(content=html, status_code=200)
+
+    if not os.path.exists(label_path):
+        return {"error_info": f"json path not exists : {label_path}"}
+    else:
+        a = Label(label_path)
+        log.info(a.save_to_json_dict())
+        html = a.save_to_html_str()
+        # html = markdown2.markdown(markdown_text)
+        return HTMLResponse(content=html, status_code=200)
 
 
 
