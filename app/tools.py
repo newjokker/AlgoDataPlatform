@@ -5,10 +5,12 @@ import markdown2
 import os
 import json
 import requests
+import time
 from JoTools.utils.LogUtil import LogUtil
 # from config import MYSQL_USER, LOG_DIR, APP_LOG_NAME, SERVER_HOST, SERVER_LOCAL_HOST, SERVER_PORT
 
 from JoTools.utils.JsonUtil import JsonUtil
+from JoTools.utils.TimeUtil import TimeUtil
 
 
 SERVER_LOCAL_HOST = "192.168.3.50"
@@ -21,21 +23,36 @@ SERVER_PORT = 11106
 
 class Label(object):
 
+    @staticmethod
+    def get_time_str(mk_time=None):
+        if mk_time is None:
+            return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        else:
+            return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(mk_time))
+
+    @staticmethod
+    def get_struct_time(time_str, str_format):
+        return time.strptime(time_str, str_format)
+
+    @staticmethod
+    def get_mk_time(time_str, str_format):
+        return time.mktime(time.strptime(time_str, str_format))
+
     def __init__(self, json_file_path=""):
         self.chinese_name   = None              # 中文名也进行重复的区分
         self.english_name   = None              # 英文名不区分大小写
         self.describe       = None
         self.attention      = set()
         self.pic_describe   = []                # （图片的说明，图片的地址直接计算上传的图片的 md5 即可）
-        self.add_time       = None
-        self.update_tme     = None
+        self.create_time    = None
+        self.update_time     = None
         self.stastic_info   = {}                # 存放统计信息，这个可以放在 redis 里面，需要打印的时候进行获取
         self.load_from_json_file(json_file_path)
 
-    def add_pic_describe(self, describe, image_path):
+    def add_pic_describe(self, describe, image_path, image_info={"width": 500}):
         # 将图片使用 md5 的方式存储在本地
         img_url = self._save_img_file(image_path)
-        self.pic_describe.append((describe, img_url))
+        self.pic_describe.append((describe, img_url, image_info))
 
     def set_chinese_name(self, name):
         if " " in name:
@@ -62,7 +79,7 @@ class Label(object):
             self.english_name = name
 
     def set_describe(self, des):
-        self.des = des
+        self.describe = des
 
     def add_attention(self, info):
         self.attention.add(info)
@@ -75,6 +92,11 @@ class Label(object):
 
         self.set_chinese_name(json_dict["chinese_name"])
         self.set_english_name(json_dict["english_name"])
+        self.set_describe(json_dict["describe"])
+
+        self.create_time = json_dict.get("create_time", None)
+        self.update_time = json_dict.get("update_time", None)
+
         self.attention = set()
         for each_attention in json_dict["attention"]:
             self.attention.add(each_attention)
@@ -98,25 +120,31 @@ class Label(object):
         # 保存的时候有两种模式，一个是使用图片的路径，一个是直接使用图片的相对位置，图片保存下载放到一个文件夹里面去
 
         # 使用 with 语句自动管理文件的打开和关闭
-        with open(r"/usr/code/app/tag.html", "r", encoding="utf-8") as file:
+        with open(r"./app/templates/tag.html", "r", encoding="utf-8") as file:
             temp = file.read()
 
             # 标题
-            temp = temp.replace("english_name", str(self.english_name))
-            temp = temp.replace("chinese_name", str(self.chinese_name))
-            temp = temp.replace("describe", str(self.describe))
+            temp = temp.replace("ENGLISH_NAME", str(self.english_name))
+            temp = temp.replace("CHINESE_NAME", str(self.chinese_name))
+            temp = temp.replace("DESCRIBE_STR", str(self.describe))
+            temp = temp.replace("CREATE_TIME_STR", str(self.create_time))
+            temp = temp.replace("UPDATE_TIME_STR", str(self.update_time))
 
             # 
             attention_str = ""
             for each_attention in self.attention:
                 attention_str += f"<ul><li>{each_attention}</li></ul>\n"
-            temp = temp.replace("attention_str", attention_str)
+            temp = temp.replace("ATTENTION_STR", attention_str)
 
             # 
             pic_str = ""
-            for each_des, each_url in self.pic_describe:
-                pic_str += f"""<p>{each_des}</p><p><img src="{each_url}" alt="" class="mw_img_center" style="width:500px;display: block; clear:both; margin: 0 auto;"/>\n"""
-            temp = temp.replace("pic_describr_str", pic_str)
+            for each_des, each_url, each_img_info in self.pic_describe:
+                width = 500
+                # 
+                if "width" in each_img_info:
+                    width = each_img_info["width"]
+                pic_str += f"""<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{each_des}</p><p><img src="{each_url}" alt="" class="mw_img_center" style="width:{width}px;display: block; clear:both; margin: 0 auto;"/>\n"""
+            temp = temp.replace("PIC_DES_STR", pic_str)
 
         return temp
 
@@ -133,10 +161,25 @@ class Label(object):
             "describe"      : self.describe,
             "attention"     : list(self.attention),
             "pic_describe"  : self.pic_describe,
+            "create_time"   : self.create_time,
+            "update_time"   : self.update_time,
         }
         return json_info
 
+    def update_create_time(self):
+        self.create_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+
+    def update_update_time(self):
+        self.update_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+
     def save_to_json_file(self, save_path):
+
+        if self.create_time in [None, "None"]:
+            self.update_create_time()
+
+        if self.update_time in [None, "None"]:
+            self.update_update_time()
+
         json_info = self.save_to_json_dict()
         try:
             with open(save_path, 'w', encoding="utf-8") as json_file:
@@ -147,13 +190,16 @@ class Label(object):
     def print_info(self):
         print(f"english name    : {self.english_name}")
         print(f"chinese name    : {self.chinese_name}")
+        print(f"create time     : {self.create_time}")
+        print(f"update time     : {self.update_time}")
         print(f"describe        : {self.describe}")
         print(f"attention       : ")
         for each_attention in self.attention:
             print(f"                * {each_attention}")
         print(f"pic_describe    : ")
         for each_pic in self.pic_describe:
-            print(f"                * {each_pic[1]} : {each_pic[0]}")
+            # print(f"                * {each_pic[1]} : {each_pic[0]}, {each_pic[3]}")
+            print(f"                * {each_pic}")
 
     @staticmethod
     def _save_img_file(img_path):
@@ -173,7 +219,7 @@ class Label(object):
 
 if __name__ == "__main__":
 
-    json_file_path = "/home/ldq/del/test_md.json"
+    json_file_path = "/usr/data/labels/test_md.json"
 
     a = Label(json_file_path)
     # a.chinese_name = "测试的标签"
@@ -186,6 +232,8 @@ if __name__ == "__main__":
 
     a.print_info()
 
-    print(a.save_to_markdown_str())
+    # print(a.save_to_html_str())
+
+    a.save_to_json_file(json_file_path)
 
 
