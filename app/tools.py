@@ -37,7 +37,7 @@ class Label(object):
     def add_pic_describe(self, describe, image_path, image_info={"width": 500}):
         # 将图片使用 md5 的方式存储在本地
         img_url = self._save_img_file(image_path)
-        self.pic_describe.append((describe, img_url, image_info))
+        self.pic_describe.append([describe, img_url, image_info])
 
     def set_chinese_name(self, name):
         if " " in name:
@@ -76,6 +76,9 @@ class Label(object):
         else:
             return False
         
+    def remove_pic_info(self, pic_index):
+        del self.pic_describe[pic_index]
+
     def load_from_json_dict(self, json_dict):
         # 从 json 中生成一个 Label
 
@@ -91,8 +94,25 @@ class Label(object):
             self.attention.add(each_attention)
         self.pic_describe = []
         for each_pic in json_dict["pic_describe"]:
-            self.pic_describe.append(each_pic)
+            self.pic_describe.append(list(each_pic))
 
+    def has_pic_desc(self, pic_des):
+        for each in self.pic_describe:
+            if each[0] == pic_des:
+                return True
+        return False
+
+    def update_pic_info(self, index, pic_des, pic_path=None, image_info=None):
+        
+        self.pic_describe[index][0] = pic_des
+
+        if os.path.exists(str(pic_path)):
+            img_url = self._save_img_file(str(pic_path))
+            self.pic_describe[index][1] = img_url
+        
+        if image_info is not None:
+            self.pic_describe[index][2] = image_info
+        
     def load_from_json_file(self, file_path):
 
         if not os.path.exists(file_path):

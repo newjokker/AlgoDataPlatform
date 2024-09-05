@@ -5,11 +5,8 @@
 import gradio as gr
 import requests
 import json
-import yaml
 from config import UI_TAGS_PORT, UI_HOST, SERVER_PORT, SERVER_LOCAL_HOST, LOG_DIR, UI_LOG_NAME, UI_LABELS_PORT
-import socket
 import os
-import copy
 from JoTools.utils.LogUtil import LogUtil
 from app.tools import Label
 
@@ -101,12 +98,11 @@ with gr.Blocks() as demo:
         json_dict = json.loads(response.text)
         now_label = Label() 
         now_label.load_from_json_dict(json_dict)
-        pic_des_list = [x[0] for x in now_label.pic_describe]
-        log.info(list(now_label.attention))
+        pic_index_list = list(range(len(now_label.pic_describe)))
         return now_label.save_to_html_str(), now_label.english_name, now_label.chinese_name, now_label.describe,\
-            gr.Dropdown(choices=list(now_label.attention), label="Attention", interactive=True, allow_custom_value=True), \
-            gr.Dropdown(choices=pic_des_list, label="Picture Describe", interactive=True, allow_custom_value=True)
-
+            gr.Dropdown(choices=list(now_label.attention), label="Attention", interactive=True, allow_custom_value=True, value=""), \
+            gr.Dropdown(choices=pic_index_list, label="Picture Index", interactive=True, allow_custom_value=True, value="")\
+            
     def update_english_name(name):
         global now_label
         now_label.english_name = name
@@ -133,16 +129,68 @@ with gr.Blocks() as demo:
         log.info(res)
         return gr.Dropdown(label="Attention", interactive=True, allow_custom_value=True, choices=list(now_label.attention))
 
+    def show_pic_info(pic_index):
+        global now_label
+        return now_label.pic_describe[int(pic_index)][0]
+         
+    def update_pic_info(pic_index, pic_des, pic_path, pic_width):
+        
+        if pic_index in [None, "None"]:
+            raise gr.Error(f"pic_index : {pic_index}")
+        
+        global now_label
+        image_info = {}
+        if pic_width in [None, "None"]:
+            image_info = None
+        else:
+            image_info = {"width": int(pic_width)}
+        now_label.update_pic_info(int(pic_index), pic_des=pic_des, pic_path=pic_path, image_info=image_info)
+        return now_label.save_to_html_str()
+
+    def add_pic_info(pic_des, img_path, pic_width):
+        global now_label
+
+        if pic_width in [None, ""]:
+            image_info = {}
+        else:
+            image_info = {"width": int(pic_width)}
+
+        if pic_des in [None, "None"]:
+            raise gr.Error("pic des is empty")
+
+        suffix = os.path.splitext(str(img_path))[1]
+        if suffix not in [".jpg", ".JPG", ".png", ".PNG"]:
+            raise gr.Error('file suffix not in : [".jpg", ".JPG", ".png", ".PNG"]')
+
+        if not os.path.exists(str(img_path)):
+            raise gr.Error("img_path not exist, please upload image")
+        
+        now_label.add_pic_describe(pic_des, img_path, image_info)
+        pic_index_list = list(range(len(now_label.pic_describe)))
+        return now_label.save_to_html_str(), gr.Dropdown(label="Pic Index", choices=pic_index_list), None
+
+    def remove_pic_info(pic_index):
+        global now_label
+        if pic_index in ["None", None]:
+            raise gr.Error(f"pic_index is : {pic_index}")
+
+        if int(pic_index) >= len(now_label.pic_describe):
+            raise gr.Error("pic_index > length of pic_info")
+
+        now_label.remove_pic_info(pic_index=int(pic_index))
+        pic_index_list = list(range(len(now_label.pic_describe)))
+        return now_label.save_to_html_str(), gr.Dropdown(label="Pic Index", choices=pic_index_list)
+
     def update_html():
         global now_label
         return now_label.save_to_html_str()
 
     with gr.Row():
         
-        with gr.Column(scale=5):
+        with gr.Column(scale=4):
             label_html=gr.HTML()
             
-        with gr.Column(scale=5):
+        with gr.Column(scale=6):
             label_selected_dd   = gr.Dropdown(choices=label_list, label="Label Selected", allow_custom_value=False)
             
             with gr.Row():
@@ -155,7 +203,7 @@ with gr.Blocks() as demo:
             describe_text       = gr.Text(label="Describe", interactive=True)
             
             with gr.Row():
-                with gr.Column(scale=8):
+                with gr.Column(scale=10):
                     attention_dd        = gr.Dropdown(label="Attention", interactive=True, allow_custom_value=True)
                 with gr.Column(scale=2):
                     add_attention_bt              = gr.Button(value="Add Attention", size="sm", min_width=1)
@@ -163,13 +211,16 @@ with gr.Blocks() as demo:
 
             with gr.Row():
                 with gr.Column(scale=6):
-                    pic_des_dd              = gr.Dropdown(label="Picture Describe", interactive=True, allow_custom_value=True, scale=4)
-                    pic_width               = gr.Dropdown(label="Pic Width", choices=[300, 400, 500, 600, 700, 800, 900, 1000], value=500, interactive=True)
+                    with gr.Row():
+                        pic_width_dd           = gr.Dropdown(label="Pic Width", choices=[300, 400, 500, 600, 700, 800, 900, 1000], interactive=True)
+                        pic_index_dd           = gr.Dropdown(label="Pic Index", choices=[1,2,3,4,5]) 
+                    pic_des_text            = gr.Text(label="Picture Describe", interactive=True, lines=2)
 
                 with gr.Column(scale=2):
                     pic_file                = gr.File(scale=1)
 
             with gr.Row():
+                pic_update_bt           = gr.Button(value="Update Pic Info", size="sm", min_width=1)
                 pic_add_bt              = gr.Button(value="Add Pic Info", size="sm", min_width=1)
                 pic_delete_bt           = gr.Button(value="Delete Pic Info", size="sm", min_width=1)
 
@@ -177,7 +228,7 @@ with gr.Blocks() as demo:
         label_selected_dd.change(
             fn=show_label_info,
             inputs=[label_selected_dd],
-            outputs=[label_html, english_name_text, chinese_name_text, describe_text, attention_dd, pic_des_dd]
+            outputs=[label_html, english_name_text, chinese_name_text, describe_text, attention_dd, pic_index_dd]
         )
 
         update_bt.click(
@@ -210,6 +261,30 @@ with gr.Blocks() as demo:
             fn=remove_assign_attention,
             inputs=[attention_dd],
             outputs=[attention_dd]
+        )
+
+        pic_index_dd.change(
+            fn=show_pic_info,
+            inputs=[pic_index_dd],
+            outputs=[pic_des_text]
+        )
+
+        pic_update_bt.click(
+            fn=update_pic_info,
+            inputs=[pic_index_dd, pic_des_text, pic_file, pic_width_dd],
+            outputs=[label_html]
+        )
+
+        pic_add_bt.click(
+            fn=add_pic_info,
+            inputs=[pic_des_text, pic_file, pic_width_dd],
+            outputs=[label_html, pic_index_dd, pic_file]
+        )
+
+        pic_delete_bt.click(
+            fn=remove_pic_info,
+            inputs=[pic_index_dd],
+            outputs=[label_html, pic_index_dd]
         )
 
 
