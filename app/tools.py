@@ -23,21 +23,6 @@ SERVER_PORT = 11106
 
 class Label(object):
 
-    @staticmethod
-    def get_time_str(mk_time=None):
-        if mk_time is None:
-            return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-        else:
-            return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(mk_time))
-
-    @staticmethod
-    def get_struct_time(time_str, str_format):
-        return time.strptime(time_str, str_format)
-
-    @staticmethod
-    def get_mk_time(time_str, str_format):
-        return time.mktime(time.strptime(time_str, str_format))
-
     def __init__(self, json_file_path=""):
         self.chinese_name   = None              # 中文名也进行重复的区分
         self.english_name   = None              # 英文名不区分大小写
@@ -85,8 +70,12 @@ class Label(object):
         self.attention.add(info)
 
     def remove_attention(self, info):
-        self.attention.add(info)
-
+        if info in self.attention:
+            self.attention.remove(info)
+            return True
+        else:
+            return False
+        
     def load_from_json_dict(self, json_dict):
         # 从 json 中生成一个 Label
 

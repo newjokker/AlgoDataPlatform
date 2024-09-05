@@ -9,6 +9,7 @@ from config import MYSQL_USER, LOG_DIR, APP_LOG_NAME, LABEL_DIR
 from typing import List
 from pydantic import BaseModel
 from .tools import Label
+from JoTools.utils.FileOperationUtil import FileOperationUtil
 
 log_path = os.path.join(LOG_DIR, APP_LOG_NAME)
 log = LogUtil.get_log(log_path, 5, "labels", print_to_console=False)
@@ -28,24 +29,42 @@ os.makedirs(LABEL_DIR, exist_ok=True)
 
 class LabelInfo(BaseModel):
     json_str:str
+    new_label:bool=False
 
+
+@label_router.get("/get_labels")
+async def get_labels():    
+    return_info = {"labels": []}
+    for each_file in os.listdir(LABEL_DIR):
+        if each_file.endswith(".json"):
+            return_info["labels"].append(each_file[:-5])
+    return_info["status"] = "success"
+    return return_info
 
 @label_router.get("/get_label_info/{label_name}")
-async def get_label(label_name:str):
-    # 根据 labelname 从本地文件读取对应的文件返回对应的 json_str
-    # 将 label 转为 html 格式的网页进行返回
-    pass
+async def get_label_info(label_name:str):
+    label_path = os.path.join(LABEL_DIR, f"{label_name}.json")
+    a = Label(label_path)
+    return  a.save_to_json_dict()
 
 @label_router.post("/save_label_info")
 async def update_label(label_info:LabelInfo):
     # json_str 转为 label， 保存到本地文件
     json_str = label_info.json_str
-    a = Label()
+    new_label = label_info.new_label
     json_dict = json.loads(json_str)
+    a = Label()
     a.load_from_json_dict(json_dict)
-
-    json_file_path = os.path.join(LABEL_DIR, f"{a.english_name}.jpg")
+    json_file_path = os.path.join(LABEL_DIR, f"{a.english_name}.json")
+    
+    if os.path.exists(json_file_path):
+        if not new_label:
+            log.error(f"update label failed, new_label is False & label exists : {a.english_name}")
+            return {"status": "failed", "error_info": f"update label failed, new_label is False & label exists : {a.english_name}"}
+    
     a.save_to_json_file(json_file_path)
+    log.info(f"* update label success : {a.english_name}")
+    return {"status": "success"}    
 
 @label_router.get("/show_label_info/{label_name}")
 async def show_label_info(label_name:str):
@@ -59,7 +78,6 @@ async def show_label_info(label_name:str):
         a = Label(label_path)
         log.info(a.save_to_json_dict())
         html = a.save_to_html_str()
-        # html = markdown2.markdown(markdown_text)
         return HTMLResponse(content=html, status_code=200)
 
 
