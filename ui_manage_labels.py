@@ -21,72 +21,7 @@ global label_list
 response = requests.get("http://192.168.3.50:11106/label/get_labels")
 label_info = json.loads(response.text)
 label_list = label_info.get("labels", [])
-
-
-def get_tag_info_from_mysql():
-    url_get_tag_info    = f"http://{SERVER_LOCAL_HOST}:{SERVER_PORT}/tag/get_tags"
-    response = requests.get(url_get_tag_info)
-    tag_info = json.loads(response.text)
-
-    if tag_info["status"] == "success":
-        log.info(f"* get tag info from mysql")
-        return tag_info["tag_info"]
-    else:
-        log.error(f"* get tag info failed, error info : {tag_info['error_info']}")
-        raise gr.Error(f"* get tag info failed, error info : {tag_info['error_info']}")
-
-def add_tag_info_to_mysql(tag_name, tag_desc):
-    url = f"http://{SERVER_LOCAL_HOST}:{SERVER_PORT}/tag/add_tag"
-    data = {"tag_name": tag_name, "tag_describe": tag_desc}
-    response = requests.post(url, json=data)
-    response = json.loads(response.text)
-    if response["status"] == "success":
-        log.info(f"* add tag to mysql : {tag_name}")
-        return response
-    else:
-        log.error(f"* add tag info failed, error info : {response['error_info']}")
-        raise gr.Error(f"* add tag info failed, error info : {response['error_info']}")
-
-def delete_tag_info_from_mysql(tag_name):
-    url_delete_tag      = f"http://{SERVER_LOCAL_HOST}:{SERVER_PORT}/tag/delete_tag"
-    response = requests.post(url_delete_tag, json={"tag_name": tag_name})
-    response = json.loads(response.text)
-
-    if response["status"] == "success":
-        log.info(f"* remove tag from mysql : {tag_name}")
-        return response
-    else:
-        log.error(f"* remove tag info failed, error info : {response['error_info']}")
-        raise gr.Error(f"* remove tag info failed, error info : {response['error_info']}")
-
-def get_cache_list():
-    url = f"http://{SERVER_LOCAL_HOST}:{SERVER_PORT}/ucd/check"
-    response = requests.get(url, headers={'Content-Type': 'application/json'})
-    official_ucd_list = json.loads(response.text)["official"]
-    log.info(f"* get ucd name list from official")
-    return official_ucd_list
-
-def load_info_from_json(ucd_path, is_official=True):
-    file_type = "official" if is_official else "customer"
-    url = f"http://{SERVER_LOCAL_HOST}:{SERVER_PORT}/ucd/get_json_info/{file_type}/{ucd_path}"
-    response = requests.get(url, headers={'Content-Type': 'application/json'})
-    info = json.loads(response.text)
-    log.info(f"* load info from json : {ucd_path}")
-    # tags            = []
-    count_tags_info = info.get("count_tags_info", {})
-    file_size       = info.get("size", "null")
-    uc_count        = info.get("uc_count", "null")
-    add_time        = info.get("add_time", "null")
-    tags            = info.get("tags", [])
-    return_info  = f"add_time : {add_time}\nfile_size    : {file_size}\nuc_count : {uc_count}\nlabels:\n"
-    # labels
-    for each_tag in count_tags_info:
-        return_info += f"    {each_tag} : {count_tags_info[each_tag]}\n"
-    # tags
-    return_tags = ""
-    for each_tag in tags:
-        return_tags += f"{each_tag},"
-    return return_info, info
+log.info(label_list)
 
 
 # 创建 Gradio 界面
@@ -181,6 +116,34 @@ with gr.Blocks() as demo:
         pic_index_list = list(range(len(now_label.pic_describe)))
         return now_label.save_to_html_str(), gr.Dropdown(label="Pic Index", choices=pic_index_list)
 
+    def save_label_to_file():
+        global now_label
+        data = {"json_str": json.dumps(now_label.save_to_json_dict()), "new_label": False}
+        response = requests.post("http://192.168.3.50:11106/label/save_label_info", json=data)
+        log.info(response.text)
+        response = json.loads(response.text)
+        if response["status"] == "failed":
+            raise gr.Error(f"save label failed : {response['error_info']}")
+
+        response = requests.get("http://192.168.3.50:11106/label/get_labels")
+        label_info = json.loads(response.text)
+        label_list = label_info.get("labels", [])
+        return gr.Dropdown(choices=label_list, label="Label Selected", allow_custom_value=False, interactive=True)
+    
+    def force_save_label_to_file():
+        global now_label
+        data = {"json_str": json.dumps(now_label.save_to_json_dict()), "new_label": True}
+        response = requests.post("http://192.168.3.50:11106/label/save_label_info", json=data)
+        log.info(response.text)
+        response = json.loads(response.text)
+        if response["status"] == "failed":
+            raise gr.Error(f"save label failed : {response['error_info']}")
+
+        response = requests.get("http://192.168.3.50:11106/label/get_labels")
+        label_info = json.loads(response.text)
+        label_list = label_info.get("labels", [])
+        return gr.Dropdown(choices=label_list, label="Label Selected", allow_custom_value=False, interactive=True)
+
     def update_html():
         global now_label
         return now_label.save_to_html_str()
@@ -191,7 +154,7 @@ with gr.Blocks() as demo:
             label_html=gr.HTML()
             
         with gr.Column(scale=6):
-            label_selected_dd   = gr.Dropdown(choices=label_list, label="Label Selected", allow_custom_value=False)
+            label_selected_dd   = gr.Dropdown(choices=label_list, label="Label Selected", allow_custom_value=False, interactive=True)
             
             with gr.Row():
                 update_bt           = gr.Button("Update")
@@ -285,6 +248,16 @@ with gr.Blocks() as demo:
             fn=remove_pic_info,
             inputs=[pic_index_dd],
             outputs=[label_html, pic_index_dd]
+        )
+
+        save_bt.click(
+            fn=save_label_to_file,
+            outputs=[label_selected_dd]
+        )
+
+        force_save_bt.click(
+            fn=force_save_label_to_file,
+            outputs=[label_selected_dd] 
         )
 
 
