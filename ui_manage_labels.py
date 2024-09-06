@@ -6,9 +6,10 @@ import gradio as gr
 import requests
 import json
 from config import UI_TAGS_PORT, UI_HOST, SERVER_PORT, SERVER_LOCAL_HOST, LOG_DIR, UI_LOG_NAME, UI_LABELS_PORT
-import os
 from JoTools.utils.LogUtil import LogUtil
 from app.tools import Label
+import os
+import re
 
 log_path = os.path.join(LOG_DIR, UI_LOG_NAME)
 log = LogUtil.get_log(log_path, 5, "ui_manage_labels", print_to_console=False)
@@ -43,13 +44,18 @@ with gr.Blocks() as demo:
         log.info(f"* show label info")
         return now_label.save_to_html_str(), now_label.english_name, now_label.chinese_name, now_label.describe,\
             gr.Dropdown(choices=list(now_label.attention), label="Attention", interactive=True, allow_custom_value=True, value=""), \
-            gr.Dropdown(choices=pic_index_list, label="Picture Index", interactive=True, allow_custom_value=True, value="")\
+            gr.Dropdown(choices=pic_index_list, label="Picture Index", interactive=True, allow_custom_value=True, value=""), ""
             
-    def update_english_name(name):
+    def update_english_name(name, region_name):
         global now_label
-        # log.info(f"* update english name : {now_label.english_name} -> {name}")
-        now_label.english_name = name
-    
+        status = now_label.set_english_name(name)
+        if status is False:
+            log.error("* english name is illegal")
+            raise gr.Error("english name is illegal")
+        else:  
+            # log.info(f"status : {status}, {now_label.save_to_json_dict()}")
+            pass
+
     def update_chinese_name(name):
         global now_label
         # log.info(f"* update chinese name : {now_label.chinese_name} -> {name}")
@@ -64,48 +70,56 @@ with gr.Blocks() as demo:
         global now_label
         if attention in ["", " ", None]:
             log.error("* attention can't be empty")
-            raise gr.Error("attention can't be empty")
+            # raise gr.Error("attention can't be empty")
+            return gr.Dropdown(label="Attention", value="", interactive=True, allow_custom_value=True, choices=list(now_label.attention)), now_label.save_to_html_str()
 
         now_label.add_attention(attention)
         log.info(f"* add attention : {attention}")
-        return gr.Dropdown(label="Attention", interactive=True, allow_custom_value=True, choices=list(now_label.attention)), now_label.save_to_html_str()
+        return gr.Dropdown(label="Attention", value="", interactive=True, allow_custom_value=True, choices=list(now_label.attention)), now_label.save_to_html_str()
     
     def remove_assign_attention(attention):
         global now_label
         res  = now_label.remove_attention(attention)
         log.info(f"* remove attention : {attention}, status : {res}")
-        return gr.Dropdown(label="Attention", interactive=True, allow_custom_value=True, choices=list(now_label.attention)), now_label.save_to_html_str()
+        return gr.Dropdown(label="Attention", value="", interactive=True, allow_custom_value=True, choices=list(now_label.attention)), now_label.save_to_html_str()
 
     def show_pic_info(pic_index):
         global now_label
 
         if pic_index in [None, "None", ""]:
-            log.error(f"pic_index : {pic_index}")
-            raise gr.Error(f"pic_index : {pic_index}")
+            # log.error(f"pic_index : {pic_index}")
+            return ""
+            # raise gr.Error(f"pic_index : {pic_index}")
         
         return now_label.pic_describe[int(pic_index)][0]
          
     def update_pic_info(pic_index, pic_des, pic_path, pic_width):
         global now_label
 
+        if os.path.exists(str(pic_path)):
+            suffix = os.path.splitext(str(pic_path))[1]
+            if suffix not in [".jpg", ".JPG", ".png", ".PNG"]:
+                log.error('* file suffix not in : [".jpg", ".JPG", ".png", ".PNG"]')
+                raise gr.Error('file suffix not in : [".jpg", ".JPG", ".png", ".PNG"]')
+
         if pic_index in [None, "None", ""]:
             log.error(f"pic_index : {pic_index}")
             raise gr.Error(f"pic_index : {pic_index}")
         
-        log.info(f"* update pic_info : region -> {now_label.save_to_json_dict()}")
+        # log.info(f"* update pic_info : region -> {now_label.save_to_json_dict()}")
         image_info = {}
         if pic_width in [None, "None"]:
             image_info = None
         else:
             image_info = {"width": int(pic_width)}
         now_label.update_pic_info(int(pic_index), pic_des=pic_des, pic_path=pic_path, image_info=image_info)
-        log.info(f"* update pic_info : after -> {now_label.save_to_json_dict()}")
+        # log.info(f"* update pic_info : after -> {now_label.save_to_json_dict()}")
         return now_label.save_to_html_str()
 
     def add_pic_info(pic_des, img_path, pic_width):
         global now_label
 
-        log.info(f"* add pic_info : region -> {now_label.save_to_json_dict()}")
+        # log.info(f"* add pic_info : region -> {now_label.save_to_json_dict()}")
 
         if pic_width in [None, ""]:
             image_info = {}
@@ -128,9 +142,9 @@ with gr.Blocks() as demo:
         now_label.add_pic_describe(pic_des, img_path, image_info)
         pic_index_list = list(range(len(now_label.pic_describe)))
 
-        log.info(f"* add pic_info : after -> {now_label.save_to_json_dict()}")
+        # log.info(f"* add pic_info : after -> {now_label.save_to_json_dict()}")
 
-        return now_label.save_to_html_str(), gr.Dropdown(label="Pic Index", choices=pic_index_list), None
+        return now_label.save_to_html_str(), gr.Dropdown(label="Pic Index", choices=pic_index_list, value=""), None, ""
 
     def remove_pic_info(pic_index):
         global now_label
@@ -139,7 +153,7 @@ with gr.Blocks() as demo:
             log.error(f"pic_index : {pic_index}")
             raise gr.Error(f"pic_index : {pic_index}")
         
-        log.info(f"* remove pic_info : region -> {now_label.save_to_json_dict()}")
+        # log.info(f"* remove pic_info : region -> {now_label.save_to_json_dict()}")
 
         if pic_index in ["None", None]:
             log.error(f"* pic_index is : {pic_index}")
@@ -154,7 +168,7 @@ with gr.Blocks() as demo:
         
         log.info(f"* remove pic_info : after -> {now_label.save_to_json_dict()}")
 
-        return now_label.save_to_html_str(), gr.Dropdown(label="Pic Index", choices=pic_index_list)
+        # return now_label.save_to_html_str(), gr.Dropdown(label="Pic Index", choices=pic_index_list, value=""), ""
 
     def save_label_to_file():
         global now_label
@@ -208,6 +222,7 @@ with gr.Blocks() as demo:
 
     def update_html():
         global now_label
+        # log.info(f"{now_label.save_to_json_dict()}")
         return now_label.save_to_html_str()
 
     with gr.Row():
@@ -253,7 +268,7 @@ with gr.Blocks() as demo:
         label_selected_dd.change(
             fn=show_label_info,
             inputs=[label_selected_dd],
-            outputs=[label_html, english_name_text, chinese_name_text, describe_text, attention_dd, pic_index_dd]
+            outputs=[label_html, english_name_text, chinese_name_text, describe_text, attention_dd, pic_index_dd, pic_des_text]
         )
 
         update_bt.click(
@@ -263,7 +278,7 @@ with gr.Blocks() as demo:
 
         english_name_text.change(
             fn=update_english_name,
-            inputs=[english_name_text],
+            inputs=[english_name_text, label_selected_dd],
         )
 
         chinese_name_text.change(
@@ -288,7 +303,7 @@ with gr.Blocks() as demo:
             outputs=[attention_dd, label_html]
         )
 
-        pic_index_dd.change(
+        pic_index_dd.select(
             fn=show_pic_info,
             inputs=[pic_index_dd],
             outputs=[pic_des_text]
@@ -303,13 +318,13 @@ with gr.Blocks() as demo:
         pic_add_bt.click(
             fn=add_pic_info,
             inputs=[pic_des_text, pic_file, pic_width_dd],
-            outputs=[label_html, pic_index_dd, pic_file]
+            outputs=[label_html, pic_index_dd, pic_file, pic_des_text]
         )
 
         pic_delete_bt.click(
             fn=remove_pic_info,
             inputs=[pic_index_dd],
-            outputs=[label_html, pic_index_dd]
+            outputs=[label_html, pic_index_dd, pic_des_text]
         )
 
         save_bt.click(

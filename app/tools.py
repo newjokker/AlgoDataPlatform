@@ -6,6 +6,7 @@ import os
 import json
 import requests
 import time
+import re
 from JoTools.utils.LogUtil import LogUtil
 # from config import MYSQL_USER, LOG_DIR, APP_LOG_NAME, SERVER_HOST, SERVER_LOCAL_HOST, SERVER_PORT
 
@@ -34,6 +35,59 @@ class Label(object):
         self.stastic_info   = {}                # 存放统计信息，这个可以放在 redis 里面，需要打印的时候进行获取
         self.load_from_json_file(json_file_path)
 
+    @staticmethod
+    def is_valid_filename(filename):
+
+        if filename is None:
+            return False
+
+        # 文件名的最大长度
+        max_length = 255  # 大多数操作系统支持的最大文件名长度
+        
+        # 检查文件名长度
+        if len(filename) > max_length:
+            return False
+        
+        # 检查文件名是否包含非法字符
+        illegal_chars = r'[\\/:*?"<>|]'  # Windows 中的非法字符
+        if re.search(illegal_chars, filename):
+            return False
+        
+        # 检查文件名是否以点或空格开始
+        if filename.startswith('.') or filename.strip().isspace():
+            return False
+        
+        # 检查文件名是否包含路径分隔符
+        if os.path.sep in filename:
+            return False
+        
+        # 检查文件名是否包含空字符串
+        if not filename:
+            return False
+        
+        # 检查文件名是否包含连续的点号
+        if '..' in filename:
+            return False
+        
+        if " " in filename:
+            return False
+
+        # 检查文件名是否包含单个点号作为扩展名
+        if filename.endswith('.'):
+            return False
+        
+        # 检查文件名是否包含保留关键字（仅限 Windows）
+        reserved_keywords = [
+            'CON', 'PRN', 'AUX', 'NUL',
+            'COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9',
+            'LPT1', 'LPT2', 'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9'
+        ]
+        if filename.split('.')[0].upper() in reserved_keywords:
+            return False
+        
+        # 如果所有检查都通过，则文件名有效
+        return True
+
     def add_pic_describe(self, describe, image_path, image_info={"width": 500}):
         # 将图片使用 md5 的方式存储在本地
         img_url = self._save_img_file(image_path)
@@ -54,19 +108,27 @@ class Label(object):
             self.chinese_name = name
 
     def set_english_name(self, name):
-        
-        if name is None:
-            return False
-        elif " " in name:
-            return False
-        elif "," in name:
-            return False
-        elif "，" in name:
-            return False
-        elif name == "":
-            return False
-        else:
+
+        name = str(name)
+        if Label.is_valid_filename(name):
             self.english_name = name
+            return True
+        else:
+            return False
+
+        # if name is None:
+        #     return False
+        # elif " " in name:
+        #     return False
+        # elif "," in name:
+        #     return False
+        # elif "，" in name:
+        #     return False
+        # elif name == "":
+        #     return False
+        # else:
+        #     self.english_name = name
+        #     return True
 
     def set_describe(self, des):
         self.describe = des

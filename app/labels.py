@@ -19,10 +19,6 @@ label_router = APIRouter(prefix="/label", tags=["label"])
 
 # TODO 先直接托管 .md 文件，使用网页的方式展示出来
 
-# TODO: 还不如直接维护在 pingcode 上面，就是如何读取 pingcode 上面的信息，或者直接维护在 33 服务器上，直接使用 .md 的形式每次可以提交完善之后再去
-
-# TODO: 中文名，英文名，描述，注意点【列表】，描述图片list，所属模型（只需要提一下最初的那个模型就行了），这个名字是部分大小写的
-
 
 os.makedirs(LABEL_DIR, exist_ok=True)
 
