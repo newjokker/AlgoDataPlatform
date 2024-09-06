@@ -40,7 +40,9 @@ class Label(object):
         self.pic_describe.append([describe, img_url, image_info])
 
     def set_chinese_name(self, name):
-        if " " in name:
+        if name is None:
+            return False
+        elif " " in name:
             return False
         elif "," in name:
             return False
@@ -52,7 +54,10 @@ class Label(object):
             self.chinese_name = name
 
     def set_english_name(self, name):
-        if " " in name:
+        
+        if name is None:
+            return False
+        elif " " in name:
             return False
         elif "," in name:
             return False

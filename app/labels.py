@@ -50,9 +50,19 @@ async def get_label_info(label_name:str):
 @label_router.post("/save_label_info")
 async def update_label(label_info:LabelInfo):
     # json_str 转为 label， 保存到本地文件
+
     json_str = label_info.json_str
     new_label = label_info.new_label
     json_dict = json.loads(json_str)
+
+    if json_dict["english_name"] in ["None", None]:
+        log.error(f"update label failed, english_name is None")
+        return {"status": "failed", "error_info": f"update label failed, english_name is None"}
+    
+    if json_dict["chinese_name"] in ["None", None]:
+        log.error(f"update label failed, chinese_name is None")
+        return {"status": "failed", "error_info": f"update label failed, chinese_name is None"}
+   
     a = Label()
     a.load_from_json_dict(json_dict)
     json_file_path = os.path.join(LABEL_DIR, f"{a.english_name}.json")
@@ -61,7 +71,9 @@ async def update_label(label_info:LabelInfo):
         if not new_label:
             log.error(f"update label failed, new_label is False & label exists : {a.english_name}")
             return {"status": "failed", "error_info": f"update label failed, new_label is False & label exists : {a.english_name}"}
-    
+    else:
+        a.update_create_time()
+
     a.save_to_json_file(json_file_path, update_time=True)
     log.info(f"* update label success : {a.english_name}")
     return {"status": "success"}    

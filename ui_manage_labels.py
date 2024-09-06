@@ -68,39 +68,44 @@ with gr.Blocks() as demo:
 
         now_label.add_attention(attention)
         log.info(f"* add attention : {attention}")
-        return gr.Dropdown(label="Attention", interactive=True, allow_custom_value=True, choices=list(now_label.attention))
+        return gr.Dropdown(label="Attention", interactive=True, allow_custom_value=True, choices=list(now_label.attention)), now_label.save_to_html_str()
     
     def remove_assign_attention(attention):
         global now_label
         res  = now_label.remove_attention(attention)
         log.info(f"* remove attention : {attention}, status : {res}")
-        return gr.Dropdown(label="Attention", interactive=True, allow_custom_value=True, choices=list(now_label.attention))
+        return gr.Dropdown(label="Attention", interactive=True, allow_custom_value=True, choices=list(now_label.attention)), now_label.save_to_html_str()
 
     def show_pic_info(pic_index):
         global now_label
+
+        if pic_index in [None, "None", ""]:
+            log.error(f"pic_index : {pic_index}")
+            raise gr.Error(f"pic_index : {pic_index}")
+        
         return now_label.pic_describe[int(pic_index)][0]
          
     def update_pic_info(pic_index, pic_des, pic_path, pic_width):
         global now_label
 
-        if pic_index in [None, "None"]:
+        if pic_index in [None, "None", ""]:
             log.error(f"pic_index : {pic_index}")
             raise gr.Error(f"pic_index : {pic_index}")
         
-        log.info(f"* update pic_info : region -> {now_label.save_to_json_dict}")
+        log.info(f"* update pic_info : region -> {now_label.save_to_json_dict()}")
         image_info = {}
         if pic_width in [None, "None"]:
             image_info = None
         else:
             image_info = {"width": int(pic_width)}
         now_label.update_pic_info(int(pic_index), pic_des=pic_des, pic_path=pic_path, image_info=image_info)
-        log.info(f"* update pic_info : after -> {now_label.save_to_json_dict}")
+        log.info(f"* update pic_info : after -> {now_label.save_to_json_dict()}")
         return now_label.save_to_html_str()
 
     def add_pic_info(pic_des, img_path, pic_width):
         global now_label
 
-        log.info(f"* add pic_info : region -> {now_label.save_to_json_dict}")
+        log.info(f"* add pic_info : region -> {now_label.save_to_json_dict()}")
 
         if pic_width in [None, ""]:
             image_info = {}
@@ -123,14 +128,18 @@ with gr.Blocks() as demo:
         now_label.add_pic_describe(pic_des, img_path, image_info)
         pic_index_list = list(range(len(now_label.pic_describe)))
 
-        log.info(f"* add pic_info : after -> {now_label.save_to_json_dict}")
+        log.info(f"* add pic_info : after -> {now_label.save_to_json_dict()}")
 
         return now_label.save_to_html_str(), gr.Dropdown(label="Pic Index", choices=pic_index_list), None
 
     def remove_pic_info(pic_index):
         global now_label
 
-        log.info(f"* remove pic_info : region -> {now_label.save_to_json_dict}")
+        if pic_index in [None, "None", ""]:
+            log.error(f"pic_index : {pic_index}")
+            raise gr.Error(f"pic_index : {pic_index}")
+        
+        log.info(f"* remove pic_info : region -> {now_label.save_to_json_dict()}")
 
         if pic_index in ["None", None]:
             log.error(f"* pic_index is : {pic_index}")
@@ -143,12 +152,21 @@ with gr.Blocks() as demo:
         now_label.remove_pic_info(pic_index=int(pic_index))
         pic_index_list = list(range(len(now_label.pic_describe)))
         
-        log.info(f"* remove pic_info : after -> {now_label.save_to_json_dict}")
+        log.info(f"* remove pic_info : after -> {now_label.save_to_json_dict()}")
 
         return now_label.save_to_html_str(), gr.Dropdown(label="Pic Index", choices=pic_index_list)
 
     def save_label_to_file():
         global now_label
+
+        if now_label.chinese_name in [None, "", "None"]:
+            log.error(f"* chinese_name illeagal : {now_label.chinese_name}")
+            raise gr.Error(f"save label failed : chinese_name illeagal : {now_label.chinese_name}")
+
+        if now_label.english_name in [None, "", "None"]:
+            log.error(f"* english_name illeagal : {now_label.english_name}")
+            raise gr.Error(f"save label failed : english_name illeagal : {now_label.chinese_name}")
+
         data = {"json_str": json.dumps(now_label.save_to_json_dict()), "new_label": False}
         response = requests.post("http://192.168.3.50:11106/label/save_label_info", json=data)
         log.info(response.text)
@@ -165,6 +183,15 @@ with gr.Blocks() as demo:
     
     def force_save_label_to_file():
         global now_label
+
+        if now_label.chinese_name in [None, "", "None"]:
+            log.error(f"* chinese_name illeagal : {now_label.chinese_name}")
+            raise gr.Error(f"save label failed : chinese_name illeagal : {now_label.chinese_name}")
+
+        if now_label.english_name in [None, "", "None"]:
+            log.error(f"* english_name illeagal : {now_label.english_name}")
+            raise gr.Error(f"save label failed : english_name illeagal : {now_label.chinese_name}")
+        
         data = {"json_str": json.dumps(now_label.save_to_json_dict()), "new_label": True}
         response = requests.post("http://192.168.3.50:11106/label/save_label_info", json=data)
         log.info(response.text)
@@ -252,13 +279,13 @@ with gr.Blocks() as demo:
         add_attention_bt.click(
             fn=add_assign_attention,
             inputs=[attention_dd],
-            outputs=[attention_dd],
+            outputs=[attention_dd, label_html],
         )
 
         delete_attention_bt.click(
             fn=remove_assign_attention,
             inputs=[attention_dd],
-            outputs=[attention_dd]
+            outputs=[attention_dd, label_html]
         )
 
         pic_index_dd.change(
