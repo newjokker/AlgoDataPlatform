@@ -24,11 +24,8 @@ label_info = json.loads(response.text)
 label_list = label_info.get("labels", [])
 log.info(label_list)
 
-# TODO: 更新时间
-# TODO: 完善日志
-# TODO: 完善流程，错误的都汇报出来
-# TODO: 一个大的页面显示所有的标签
 
+# TODO: 一个大的页面显示所有的标签
 
 
 # 创建 Gradio 界面

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Name Links</title>
+    <style>
+        body {
+            font-family: 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #F5F5F7;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        .column {
+            flex: 1 1 calc(20% - 20px); /* Adjust for spacing */
+            min-width: calc(20% - 20px); /* Adjust for spacing */
+            background-color: #FFFFFF;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+        }
+        a {
+            text-decoration: none;
+            color: #06C;
+            font-size: 18px;
+            display: block;
+            margin-bottom: 10px;
+            transition: color 0.3s ease-in-out;
+        }
+        a:hover {
+            color: #05A;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>Labels</h1>
+    <div class="container" id="name-container"></div>
+
+    <script>
+        const names = [
+            ALL_LABELS_NEED_PLACE
+        ];
+
+        function generateNameList(names) {
+            const container = document.getElementById('name-container');
+            const columns = [];
+
+            for (let i = 0; i < 4; i++) {
+                const column = document.createElement('div');
+                column.classList.add('column');
+                columns.push(column);
+                container.appendChild(column);
+            }
+
+            names.forEach((name, index) => {
+                const column = columns[index % 4];
+                const a = document.createElement('a');
+                a.href = name.url;
+                a.textContent = name.name;
+                column.appendChild(a);
+            });
+        }
+
+        generateNameList(names);
+    </script>
+</body>
+</html>

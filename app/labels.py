@@ -5,7 +5,7 @@ import os
 import requests
 import json
 from JoTools.utils.LogUtil import LogUtil
-from config import MYSQL_USER, LOG_DIR, APP_LOG_NAME, LABEL_DIR
+from config import MYSQL_USER, LOG_DIR, APP_LOG_NAME, LABEL_DIR, SERVER_PORT
 from typing import List
 from pydantic import BaseModel
 from .tools import Label
@@ -88,5 +88,21 @@ async def show_label_info(label_name:str):
         html = a.save_to_html_str()
         return HTMLResponse(content=html, status_code=200)
 
+@label_router.get("/show_label_list_info/{host}")
+async def show_label_list_info(host:str):
+    """label 信息总览"""
+    label_list = {}
+    for each_file in os.listdir(LABEL_DIR):
+        if each_file.endswith(".json"):
+            label_list.append(each_file[:-5])
 
+    with open(r"./app/templates/label_list.html", "r", encoding="utf-8") as file:
+        html = file.read()
+        label_str = ""
+        for each_label in label_list:
+            url = f"http://{host}:{SERVER_PORT}/label/show_label_info/{each_label}"
+            label_str += f'{{ name: "{each_label}", url: "{url}" }},'
+        
+        html = html.replace("ALL_LABELS_NEED_PLACE", label_str)
+        return HTMLResponse(content=html, status_code=200)
 
