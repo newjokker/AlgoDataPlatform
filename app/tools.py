@@ -129,7 +129,7 @@ class Label(object):
         # 保存的时候有两种模式，一个是使用图片的路径，一个是直接使用图片的相对位置，图片保存下载放到一个文件夹里面去
 
         # 使用 with 语句自动管理文件的打开和关闭
-        with open(r"./app/templates/tag.html", "r", encoding="utf-8") as file:
+        with open(r"./app/templates/label.html", "r", encoding="utf-8") as file:
             temp = file.read()
 
             # 标题
@@ -181,12 +181,15 @@ class Label(object):
     def update_update_time(self):
         self.update_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
-    def save_to_json_file(self, save_path):
+    def save_to_json_file(self, save_path, update_time=False):
 
         if self.create_time in [None, "None"]:
             self.update_create_time()
 
         if self.update_time in [None, "None"]:
+            self.update_update_time()
+
+        if update_time:
             self.update_update_time()
 
         json_info = self.save_to_json_dict()

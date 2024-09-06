@@ -23,6 +23,12 @@ label_info = json.loads(response.text)
 label_list = label_info.get("labels", [])
 log.info(label_list)
 
+# TODO: 更新时间
+# TODO: 完善日志
+# TODO: 完善流程，错误的都汇报出来
+# TODO: 一个大的页面显示所有的标签
+
+
 
 # 创建 Gradio 界面
 with gr.Blocks() as demo:
@@ -34,34 +40,40 @@ with gr.Blocks() as demo:
         now_label = Label() 
         now_label.load_from_json_dict(json_dict)
         pic_index_list = list(range(len(now_label.pic_describe)))
+        log.info(f"* show label info")
         return now_label.save_to_html_str(), now_label.english_name, now_label.chinese_name, now_label.describe,\
             gr.Dropdown(choices=list(now_label.attention), label="Attention", interactive=True, allow_custom_value=True, value=""), \
             gr.Dropdown(choices=pic_index_list, label="Picture Index", interactive=True, allow_custom_value=True, value="")\
             
     def update_english_name(name):
         global now_label
+        # log.info(f"* update english name : {now_label.english_name} -> {name}")
         now_label.english_name = name
     
     def update_chinese_name(name):
         global now_label
+        # log.info(f"* update chinese name : {now_label.chinese_name} -> {name}")
         now_label.chinese_name = name
     
     def update_describe(des):
         global now_label
+        # log.info(f"* update describe : {now_label.describe} -> {des}")
         now_label.describe = des
 
     def add_assign_attention(attention):
         global now_label
         if attention in ["", " ", None]:
+            log.error("* attention can't be empty")
             raise gr.Error("attention can't be empty")
 
         now_label.add_attention(attention)
+        log.info(f"* add attention : {attention}")
         return gr.Dropdown(label="Attention", interactive=True, allow_custom_value=True, choices=list(now_label.attention))
     
     def remove_assign_attention(attention):
         global now_label
         res  = now_label.remove_attention(attention)
-        log.info(res)
+        log.info(f"* remove attention : {attention}, status : {res}")
         return gr.Dropdown(label="Attention", interactive=True, allow_custom_value=True, choices=list(now_label.attention))
 
     def show_pic_info(pic_index):
@@ -69,21 +81,26 @@ with gr.Blocks() as demo:
         return now_label.pic_describe[int(pic_index)][0]
          
     def update_pic_info(pic_index, pic_des, pic_path, pic_width):
-        
+        global now_label
+
         if pic_index in [None, "None"]:
+            log.error(f"pic_index : {pic_index}")
             raise gr.Error(f"pic_index : {pic_index}")
         
-        global now_label
+        log.info(f"* update pic_info : region -> {now_label.save_to_json_dict}")
         image_info = {}
         if pic_width in [None, "None"]:
             image_info = None
         else:
             image_info = {"width": int(pic_width)}
         now_label.update_pic_info(int(pic_index), pic_des=pic_des, pic_path=pic_path, image_info=image_info)
+        log.info(f"* update pic_info : after -> {now_label.save_to_json_dict}")
         return now_label.save_to_html_str()
 
     def add_pic_info(pic_des, img_path, pic_width):
         global now_label
+
+        log.info(f"* add pic_info : region -> {now_label.save_to_json_dict}")
 
         if pic_width in [None, ""]:
             image_info = {}
@@ -91,29 +108,43 @@ with gr.Blocks() as demo:
             image_info = {"width": int(pic_width)}
 
         if pic_des in [None, "None"]:
+            log.error("* pic des is empty")
             raise gr.Error("pic des is empty")
 
         suffix = os.path.splitext(str(img_path))[1]
         if suffix not in [".jpg", ".JPG", ".png", ".PNG"]:
+            log.error('* file suffix not in : [".jpg", ".JPG", ".png", ".PNG"]')
             raise gr.Error('file suffix not in : [".jpg", ".JPG", ".png", ".PNG"]')
 
         if not os.path.exists(str(img_path)):
+            log.error("* img_path not exist, please upload image")
             raise gr.Error("img_path not exist, please upload image")
         
         now_label.add_pic_describe(pic_des, img_path, image_info)
         pic_index_list = list(range(len(now_label.pic_describe)))
+
+        log.info(f"* add pic_info : after -> {now_label.save_to_json_dict}")
+
         return now_label.save_to_html_str(), gr.Dropdown(label="Pic Index", choices=pic_index_list), None
 
     def remove_pic_info(pic_index):
         global now_label
+
+        log.info(f"* remove pic_info : region -> {now_label.save_to_json_dict}")
+
         if pic_index in ["None", None]:
+            log.error(f"* pic_index is : {pic_index}")
             raise gr.Error(f"pic_index is : {pic_index}")
 
         if int(pic_index) >= len(now_label.pic_describe):
+            log.error("* pic_index > length of pic_info")
             raise gr.Error("pic_index > length of pic_info")
 
         now_label.remove_pic_info(pic_index=int(pic_index))
         pic_index_list = list(range(len(now_label.pic_describe)))
+        
+        log.info(f"* remove pic_info : after -> {now_label.save_to_json_dict}")
+
         return now_label.save_to_html_str(), gr.Dropdown(label="Pic Index", choices=pic_index_list)
 
     def save_label_to_file():
@@ -123,11 +154,13 @@ with gr.Blocks() as demo:
         log.info(response.text)
         response = json.loads(response.text)
         if response["status"] == "failed":
+            log.error(f"* save label to file failed : error_info : {response['error_info']}")
             raise gr.Error(f"save label failed : {response['error_info']}")
 
         response = requests.get("http://192.168.3.50:11106/label/get_labels")
         label_info = json.loads(response.text)
         label_list = label_info.get("labels", [])
+        log.info(f"* save label to file success")
         return gr.Dropdown(choices=label_list, label="Label Selected", allow_custom_value=False, interactive=True)
     
     def force_save_label_to_file():
@@ -137,11 +170,13 @@ with gr.Blocks() as demo:
         log.info(response.text)
         response = json.loads(response.text)
         if response["status"] == "failed":
+            log.error(f"* save label to file failed : error_info : {response['error_info']}")
             raise gr.Error(f"save label failed : {response['error_info']}")
 
         response = requests.get("http://192.168.3.50:11106/label/get_labels")
         label_info = json.loads(response.text)
         label_list = label_info.get("labels", [])
+        log.info(f"* save label to file success")
         return gr.Dropdown(choices=label_list, label="Label Selected", allow_custom_value=False, interactive=True)
 
     def update_html():

@@ -62,7 +62,7 @@ async def update_label(label_info:LabelInfo):
             log.error(f"update label failed, new_label is False & label exists : {a.english_name}")
             return {"status": "failed", "error_info": f"update label failed, new_label is False & label exists : {a.english_name}"}
     
-    a.save_to_json_file(json_file_path)
+    a.save_to_json_file(json_file_path, update_time=True)
     log.info(f"* update label success : {a.english_name}")
     return {"status": "success"}    
 
