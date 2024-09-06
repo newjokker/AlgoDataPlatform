@@ -91,7 +91,7 @@ async def show_label_info(label_name:str):
 @label_router.get("/show_label_list_info/{host}")
 async def show_label_list_info(host:str):
     """label 信息总览"""
-    label_list = {}
+    label_list = []
     for each_file in os.listdir(LABEL_DIR):
         if each_file.endswith(".json"):
             label_list.append(each_file[:-5])

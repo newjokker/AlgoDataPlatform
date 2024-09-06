@@ -14,22 +14,25 @@ import re
 log_path = os.path.join(LOG_DIR, UI_LOG_NAME)
 log = LogUtil.get_log(log_path, 5, "ui_manage_labels", print_to_console=False)
 
-
 global now_label    # 当前的标签对象
-
-
-global label_list 
-response = requests.get("http://192.168.3.50:11106/label/get_labels")
-label_info = json.loads(response.text)
-label_list = label_info.get("labels", [])
-log.info(label_list)
-
-
-# TODO: 一个大的页面显示所有的标签
-
+now_label = Label()
 
 # 创建 Gradio 界面
 with gr.Blocks() as demo:
+
+    def add_new_label():
+        global now_label
+        now_label = Label()
+        return now_label.save_to_html_str(), "empty", "", "", gr.Dropdown(label="Attention", interactive=True, allow_custom_value=True, value=""), \
+        gr.Dropdown(label="Pic Width", choices=[300, 400, 500, 600, 700, 800, 900, 1000], interactive=True, value=""),\
+        gr.Dropdown(label="Pic Index"),""
+        
+    def update_label_list():
+        response = requests.get("http://192.168.3.50:11106/label/get_labels")
+        label_info = json.loads(response.text)
+        label_list = label_info.get("labels", [])
+        log.info(f"* update label list : {label_list}")
+        return gr.Dropdown(choices=label_list, scale=10, label="Label Selected", allow_custom_value=False, interactive=True)
 
     def show_label_info(label_name):
         global now_label   
@@ -88,7 +91,7 @@ with gr.Blocks() as demo:
             return ""
             # raise gr.Error(f"pic_index : {pic_index}")
         
-        return now_label.pic_describe[int(pic_index)][0]
+        return now_label.pic_describe[int(pic_index)][0], gr.Dropdown(label="Pic Width", choices=[300, 400, 500, 600, 700, 800, 900, 1000], interactive=True, value="")
          
     def update_pic_info(pic_index, pic_des, pic_path, pic_width):
         global now_label
@@ -162,10 +165,8 @@ with gr.Blocks() as demo:
 
         now_label.remove_pic_info(pic_index=int(pic_index))
         pic_index_list = list(range(len(now_label.pic_describe)))
-        
-        log.info(f"* remove pic_info : after -> {now_label.save_to_json_dict()}")
-
-        # return now_label.save_to_html_str(), gr.Dropdown(label="Pic Index", choices=pic_index_list, value=""), ""
+        # log.info(f"* remove pic_info : after -> {now_label.save_to_json_dict()}")
+        return now_label.save_to_html_str(), gr.Dropdown(label="Pic Index", choices=pic_index_list, value=""), ""
 
     def save_label_to_file():
         global now_label
@@ -228,9 +229,12 @@ with gr.Blocks() as demo:
             label_html=gr.HTML()
             
         with gr.Column(scale=6):
-            label_selected_dd   = gr.Dropdown(choices=label_list, label="Label Selected", allow_custom_value=False, interactive=True)
-            
             with gr.Row():
+                label_selected_dd   = gr.Dropdown(choices=[], scale=10, label="Label Selected", allow_custom_value=False, interactive=True)
+                label_selected_bt   = gr.Button(value="Update Label List", scale=1)
+
+            with gr.Row():
+                new_label_bt        = gr.Button("New Label")
                 update_bt           = gr.Button("Update")
                 save_bt             = gr.Button("Save")
                 force_save_bt       = gr.Button("Force Save")
@@ -268,6 +272,11 @@ with gr.Blocks() as demo:
             outputs=[label_html, english_name_text, chinese_name_text, describe_text, attention_dd, pic_index_dd, pic_des_text]
         )
 
+        label_selected_bt.click(
+            fn=update_label_list,
+            outputs=[label_selected_dd],
+        )
+
         update_bt.click(
             fn=update_html,
             outputs=[label_html]
@@ -303,7 +312,7 @@ with gr.Blocks() as demo:
         pic_index_dd.select(
             fn=show_pic_info,
             inputs=[pic_index_dd],
-            outputs=[pic_des_text]
+            outputs=[pic_des_text, pic_width_dd]
         )
 
         pic_update_bt.click(
@@ -322,6 +331,11 @@ with gr.Blocks() as demo:
             fn=remove_pic_info,
             inputs=[pic_index_dd],
             outputs=[label_html, pic_index_dd, pic_des_text]
+        )
+
+        new_label_bt.click(
+            fn=add_new_label,
+            outputs=[label_html, english_name_text, chinese_name_text, describe_text, attention_dd, pic_width_dd, pic_index_dd, pic_des_text]
         )
 
         save_bt.click(
