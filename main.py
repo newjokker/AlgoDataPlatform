@@ -13,7 +13,8 @@ from app.labels import label_router
 from app.customerfile import customer_file_router
 from app.menu import menu_router
 from app.stastic import stastic_router
-
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse, Response
 
 app = FastAPI()
 
@@ -29,6 +30,14 @@ app.include_router(customer_file_router)
 app.include_router(stastic_router)
 app.include_router(menu_router)
 
+
+app.mount("/static", StaticFiles(directory="./app/static"), name="static")
+
+@app.get("/favicon.ico")
+async def get_favicon():
+    with open(r'F:\Code\algodataplatform\app\static\favicon.ico', "rb") as f:
+        favicon = f.read()
+        return Response(content=favicon, media_type="image/x-icon")
 
 
 if __name__ == "__main__":
