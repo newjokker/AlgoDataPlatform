@@ -58,6 +58,10 @@ LOG_DIR                 = "./logs"
 UI_LOG_NAME             = "ui.log"
 APP_LOG_NAME            = "app.log"
 
+# stastic 
+STASTIC_TAG_DIR         = "/usr/data/stastic/stastic_tags"
+
+
 
 
 r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=0)

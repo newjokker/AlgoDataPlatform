@@ -44,7 +44,7 @@ async def get_label_info(label_name:str):
     return  a.save_to_json_dict()
 
 @label_router.post("/save_label_info")
-async def update_label(label_info:LabelInfo):
+async def save_label_info(label_info:LabelInfo):
     # json_str 转为 label， 保存到本地文件
 
     json_str = label_info.json_str
