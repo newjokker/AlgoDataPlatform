@@ -27,6 +27,8 @@ class LabelInfo(BaseModel):
     json_str:str
     new_label:bool=False
 
+# class LabelPdfInfo(BaseModel):
+#     tag_list = List(str)
 
 @label_router.get("/get_labels")
 async def get_labels():    
@@ -106,3 +108,8 @@ async def show_label_list_info(host:str):
         html = html.replace("ALL_LABELS_NEED_PLACE", label_str)
         return HTMLResponse(content=html, status_code=200)
 
+# @label_router.post("/download_labels_pdf")
+# async def download_labels_pdf(label_pdf_info:LabelPdfInfo):
+    
+    
+#     pass

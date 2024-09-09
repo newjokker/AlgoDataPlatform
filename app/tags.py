@@ -136,4 +136,3 @@ def add_tag_info_to_mysql(add_tag_info:AddTagInfo):
     finally:
         if connection:
             connection.close()
-
