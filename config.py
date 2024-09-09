@@ -60,7 +60,7 @@ APP_LOG_NAME            = "app.log"
 
 # stastic 
 STASTIC_TAG_DIR         = "/usr/data/stastic/stastic_tags"
-
+STASTIC_LABEL_DIR       = "/usr/data/stastic/stastic_labels"
 
 
 
