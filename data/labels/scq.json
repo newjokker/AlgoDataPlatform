@@ -1,0 +1,20 @@
+{
+    "english_name": "scq",
+    "chinese_name": "\u901f\u5dee\u5668",
+    "describe": null,
+    "attention": [],
+    "pic_describe": [
+        [
+            "\u6807\u6ce8\u8303\u56f4\uff1a\u6b63\u6846\u6807\u6ce8\uff0c\u5305\u542b\u901f\u5dee\u5668\u672c\u4f53\uff0c\u6709\u7ebf\u8fde\u7740\u7684\uff0c\u9700\u5305\u542b\u7ebf\u548c\u6302\u70b9",
+            "http://192.168.3.50:11106/customer_file/download/01dc584bc68ae15f1394106cedc17460.png",
+            {}
+        ],
+        [
+            "",
+            "http://192.168.3.50:11106/customer_file/download/f8c57c441d07033c4b0a90765e879c1e.png",
+            {}
+        ]
+    ],
+    "create_time": "2024-09-09 01:01:54",
+    "update_time": "2024-09-09 01:01:54"
+}

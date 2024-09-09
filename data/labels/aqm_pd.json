@@ -1,0 +1,20 @@
+{
+    "english_name": "aqm_pd",
+    "chinese_name": "\u5b89\u5168\u5e3d\u4f69\u6234",
+    "describe": "\u80fd\u591f\u8bc6\u522b\u5df2\u6234\u7684\u5b89\u5168\u5e3d\uff0c \u4f46\u662f\u5206\u4e0d\u6e05\u662f\u5426\u6b63\u786e\u4f69\u6234\u5b89\u5168\u5e3d",
+    "attention": [],
+    "pic_describe": [
+        [
+            "\u6807\u6ce8\u8303\u56f4\uff1a\u6b63\u6846\u5b8c\u5168\u5305\u88f9\u5934\u548c\u5b89\u5168\u5e3d (\u793a\u4f8b\u5982\u4e0b)",
+            "http://192.168.3.50:11106/customer_file/download/b598f34efa89a8acc1b16c13586e5a6c.png",
+            {}
+        ],
+        [
+            "",
+            "http://192.168.3.50:11106/customer_file/download/b5085c47c58726a0f7c63fc5ce92534d.png",
+            {}
+        ]
+    ],
+    "create_time": "2024-09-06 09:39:33",
+    "update_time": "2024-09-06 09:40:21"
+}

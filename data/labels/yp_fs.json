@@ -1,0 +1,27 @@
+{
+    "english_name": "yp_fs",
+    "chinese_name": "\u53f6\u7247\u8150\u8680",
+    "describe": "\u53f6\u7247\u8868\u9762\u6d82\u5c42\u9632\u62a4\u5c42\u56e0\u78e8\u635f\u5265\u843d\u6216\u53d7\u5230\u81ea\u7136\u56e0\u7d20\u7684\u4fb5\u8680\u7b49\u539f\u56e0\u4f7f\u5176\u66b4\u9732\u5728\u73af\u5883\u4e2d\u53d1\u751f\u6c27\u5316\u3001\u8150\u8680\uff0c\u51fa\u73b0\u635f\u574f\uff0c\u53f6\u7247\u8868\u9762\u4ea7\u751f\u8150\u8680\u7eb9\u8def\u548c\u88c2\u7eb9\u3002\u5e38\u89c1\u4e0e\u53f6\u7247\u524d\u7f18\u90e8\u4f4d\u3002",
+    "attention": [],
+    "pic_describe": [
+        [
+            "",
+            "http://192.168.3.50:11106/customer_file/download/82a489a7d6ae79a80501552c95125146.png",
+            {}
+        ],
+        [
+            "",
+            "http://192.168.3.50:11106/customer_file/download/cf5e80e6b8b0d510ece57fd19eee5efc.png",
+            {
+                "width": 400
+            }
+        ],
+        [
+            "",
+            "http://192.168.3.50:11106/customer_file/download/ad24461849671f42bfc8a0167a772d20.png",
+            {}
+        ]
+    ],
+    "create_time": "2024-09-09 01:45:15",
+    "update_time": "2024-09-09 01:45:15"
+}

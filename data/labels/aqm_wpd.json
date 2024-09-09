@@ -1,0 +1,19 @@
+{
+    "english_name": "aqm_wpd",
+    "chinese_name": "\u5b89\u5168\u5e3d\u672a\u4f69\u6234",
+    "describe": "",
+    "attention": [
+        "\u6807\u51c6\u8303\u56f4\uff1a\u6b63\u6846\u5b8c\u5168\u5305\u88f9\u5934"
+    ],
+    "pic_describe": [
+        [
+            "",
+            "http://192.168.3.50:11106/customer_file/download/8d6d002cb3aacac872c0b0e1b878b95d.png",
+            {
+                "width": 500
+            }
+        ]
+    ],
+    "create_time": "2024-09-06 09:14:34",
+    "update_time": "2024-09-06 09:14:34"
+}
