@@ -192,35 +192,52 @@ class Label(object):
         except Exception as e:
             print(e)
 
+    def get_html_temp_str(self):
+
+        temp_str = """
+<h1 id="toc_0">ENGLISH_NAME</h1>
+<h3 id="toc_2">CHINESE_NAME</h3>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DESCRIBE_STR</p>
+<h4 id="toc_5">attention</h4>
+ATTENTION_STR
+<h4 id="toc_5">example</h4>
+PIC_DES_STR
+<h4 id="toc_6">stastic</h4>
+<h5 id="toc_6">model inclue : </h5>
+<h5 id="toc_6">label number : </h5>
+<p>create_time&nbsp;: &nbsp;CREATE_TIME_STR</p>     
+<p>update_time&nbsp;: &nbsp;UPDATE_TIME_STR</p>
+<div style="page-break-after: always;"></div>
+"""
+        temp_str = temp_str.replace("ENGLISH_NAME", str(self.english_name))
+        temp_str = temp_str.replace("CHINESE_NAME", str(self.chinese_name))
+        temp_str = temp_str.replace("DESCRIBE_STR", str(self.describe))
+        temp_str = temp_str.replace("CREATE_TIME_STR", str(self.create_time))
+        temp_str = temp_str.replace("UPDATE_TIME_STR", str(self.update_time))
+
+        attention_str = ""
+        for each_attention in self.attention:
+            attention_str += f"<ul><li>{each_attention}</li></ul>\n"
+        temp_str = temp_str.replace("ATTENTION_STR", attention_str)
+
+        # 
+        pic_str = ""
+        for each_des, each_url, each_img_info in self.pic_describe:
+            width = 500
+            # 
+            if "width" in each_img_info:
+                width = each_img_info["width"]
+            pic_str += f"""<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{each_des}</p><p><img src="{each_url}" alt="" class="mw_img_center" style="width:{width}px;display: block; clear:both; margin: 0 auto;"/>\n"""
+        temp_str = temp_str.replace("PIC_DES_STR", pic_str)
+        return temp_str
+
     def save_to_html_str(self):
         # 保存的时候有两种模式，一个是使用图片的路径，一个是直接使用图片的相对位置，图片保存下载放到一个文件夹里面去
 
-        # 使用 with 语句自动管理文件的打开和关闭
+        temp_str = self.get_html_temp_str()
         with open(r"./app/templates/label.html", "r", encoding="utf-8") as file:
             temp = file.read()
-
-            # 标题
-            temp = temp.replace("ENGLISH_NAME", str(self.english_name))
-            temp = temp.replace("CHINESE_NAME", str(self.chinese_name))
-            temp = temp.replace("DESCRIBE_STR", str(self.describe))
-            temp = temp.replace("CREATE_TIME_STR", str(self.create_time))
-            temp = temp.replace("UPDATE_TIME_STR", str(self.update_time))
-
-            # 
-            attention_str = ""
-            for each_attention in self.attention:
-                attention_str += f"<ul><li>{each_attention}</li></ul>\n"
-            temp = temp.replace("ATTENTION_STR", attention_str)
-
-            # 
-            pic_str = ""
-            for each_des, each_url, each_img_info in self.pic_describe:
-                width = 500
-                # 
-                if "width" in each_img_info:
-                    width = each_img_info["width"]
-                pic_str += f"""<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{each_des}</p><p><img src="{each_url}" alt="" class="mw_img_center" style="width:{width}px;display: block; clear:both; margin: 0 auto;"/>\n"""
-            temp = temp.replace("PIC_DES_STR", pic_str)
+            temp = temp.replace("LABEL_INFO", temp_str)
 
         return temp
 

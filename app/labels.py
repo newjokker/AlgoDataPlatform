@@ -5,11 +5,12 @@ import os
 import requests
 import json
 from JoTools.utils.LogUtil import LogUtil
-from config import MYSQL_USER, LOG_DIR, APP_LOG_NAME, LABEL_DIR, SERVER_PORT
+from config import MYSQL_USER, LOG_DIR, APP_LOG_NAME, LABEL_DIR, SERVER_PORT, SERVER_LOCAL_HOST
 from typing import List
 from pydantic import BaseModel
 from .tools import Label
 from JoTools.utils.FileOperationUtil import FileOperationUtil
+from typing import List
 
 log_path = os.path.join(LOG_DIR, APP_LOG_NAME)
 log = LogUtil.get_log(log_path, 5, "labels", print_to_console=False)
@@ -26,9 +27,6 @@ os.makedirs(LABEL_DIR, exist_ok=True)
 class LabelInfo(BaseModel):
     json_str:str
     new_label:bool=False
-
-# class LabelPdfInfo(BaseModel):
-#     tag_list = List(str)
 
 @label_router.get("/get_labels")
 async def get_labels():    
@@ -76,19 +74,27 @@ async def save_label_info(label_info:LabelInfo):
     log.info(f"* update label success : {a.english_name}")
     return {"status": "success"}    
 
-@label_router.get("/show_label_info/{label_name}")
-async def show_label_info(label_name:str):
+@label_router.get("/show_label_info/{label_name_list_str}")
+async def show_label_info(label_name_list_str:str):
     # 将 lable 转为读取为 html 的方式进行返回
 
-    label_path = os.path.join(LABEL_DIR, f"{label_name}.json")
+    with open(r"./app/templates/label.html", "r", encoding="utf-8") as file:
+        temp = file.read()
 
-    if not os.path.exists(label_path):
-        return {"error_info": f"json path not exists : {label_path}"}
-    else:
-        a = Label(label_path)
-        log.info(a.save_to_json_dict())
-        html = a.save_to_html_str()
-        return HTMLResponse(content=html, status_code=200)
+    label_name_list = label_name_list_str.split(",")
+
+    html_str = ""
+    for each_name in label_name_list:
+        label_path = os.path.join(LABEL_DIR, f"{each_name}.json")
+        if not os.path.exists(label_path):
+            return {"error_info": f"json path not exists : {label_path}"}
+        else:
+            a = Label(label_path)
+            log.info(a.save_to_json_dict())
+            html_str += a.get_html_temp_str()
+
+    html = temp.replace("LABEL_INFO", html_str)
+    return HTMLResponse(content=html, status_code=200)
 
 @label_router.get("/show_label_list_info/{host}")
 async def show_label_list_info(host:str):
@@ -108,8 +114,18 @@ async def show_label_list_info(host:str):
         html = html.replace("ALL_LABELS_NEED_PLACE", label_str)
         return HTMLResponse(content=html, status_code=200)
 
-# @label_router.post("/download_labels_pdf")
-# async def download_labels_pdf(label_pdf_info:LabelPdfInfo):
+@label_router.post("/download_labels_pdf/{label_list_str}")
+async def download_labels_pdf(label_list_str:str):    
+    # 网页使用分页符，分割多个页面即可， <div style="page-break-after: always;"></div>
+    # 多个标签的网页需要生成一个导航的表头，要显示有多少标签，标签的顺序，标签页面的快捷按钮
+    # 网页转为 pdf 并发送过去
+
+    url = f"http://{SERVER_LOCAL_HOST}:{SERVER_PORT}/label/show_label_info/{label_list_str}"
+
     
-    
-#     pass
+
+    # 查看所有的 label 是不是都是在库里面，多个 label 生成一个 pdf ， 
+    # pdf 有自己的模板，pdf 
+
+
+    pass
