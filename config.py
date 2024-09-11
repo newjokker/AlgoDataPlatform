@@ -1,21 +1,26 @@
 
 import redis
+import os
+
+
+
 
 # common
-TEMP_DIR            = r"/usr/data/temp"
+DATA_DIR            = r"/Users/jokkerling/Documents/Data"
+TEMP_DIR            = os.path.join(DATA_DIR, "temp")
 
 
 # ucd
-UCD_APP_DIR         = r"/usr/data/ucd/app"
-UC_IMG_DIR          = r"/usr/data/ucd/json_img"
-UCD_OFFICIAL_DIR    = r"/usr/data/ucd/official"
-UCD_CUSTOMER_DIR    = r"/usr/data/ucd/customer"
+UCD_APP_DIR         = os.path.join(DATA_DIR, "ucd/app")         
+UC_IMG_DIR          = os.path.join(DATA_DIR, "ucd/json_img")    
+UCD_OFFICIAL_DIR    = os.path.join(DATA_DIR, "ucd/official")    
+UCD_CUSTOMER_DIR    = os.path.join(DATA_DIR, "ucd/customer")    
 
 # customer file
-CUSTOMER_FILE_DIR   = r"/usr/data/customer_file"
+CUSTOMER_FILE_DIR   = os.path.join(DATA_DIR, "customer_file")  
 
 # label
-LABEL_DIR           = r"/usr/data/labels"
+LABEL_DIR           = os.path.join(DATA_DIR, "labels")          
 
 # redis
 REDIS_HOST          = "127.0.0.1"
@@ -35,7 +40,7 @@ SVN_PASSWORD        = "txkj"
 
 # model
 MODEL_SUFFIX_SET    = {".pth", ".pt", ".model", ".plan", ".om"}
-MODEL_CUSTOMER_DIR  = r"/usr/data/model/customer"
+MODEL_CUSTOMER_DIR  = os.path.join(DATA_DIR, "model/customer")  
 
 # ui server
 UI_HOST             = "0.0.0.0"
@@ -59,8 +64,8 @@ UI_LOG_NAME             = "ui.log"
 APP_LOG_NAME            = "app.log"
 
 # stastic 
-STASTIC_TAG_DIR         = "/usr/data/stastic/stastic_tags"
-STASTIC_LABEL_DIR       = "/usr/data/stastic/stastic_labels"
+STASTIC_TAG_DIR         = os.path.join(DATA_DIR, "stastic/stastic_tags")   
+STASTIC_LABEL_DIR       = os.path.join(DATA_DIR, "stastic/stastic_labels")  
 
 
 

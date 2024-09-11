@@ -35,7 +35,7 @@ app.mount("/static", StaticFiles(directory="./app/static"), name="static")
 
 @app.get("/favicon.ico")
 async def get_favicon():
-    with open(r'F:\Code\algodataplatform\app\static\favicon.ico', "rb") as f:
+    with open(r'./app/static/favicon.ico', "rb") as f:
         favicon = f.read()
         return Response(content=favicon, media_type="image/x-icon")
 
