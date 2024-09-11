@@ -304,7 +304,7 @@ PIC_DES_STR
             files = {"file": (os.path.basename(img_path), file)}
             response = requests.post(url=url, files=files)
             file_name = json.loads(response.text)
-            file_path = f"http://{SERVER_LOCAL_HOST}:{SERVER_PORT}/customer_file/download/{file_name}"
+            file_path = f"http://192.168.3.50:{SERVER_PORT}/customer_file/download/{file_name}"
             return file_path
 
 
