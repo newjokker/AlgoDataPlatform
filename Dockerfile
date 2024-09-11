@@ -15,7 +15,7 @@ RUN pip install -i https://mirrors.aliyun.com/pypi/simple/ \
     fastapi \
     JoUtil \
     python-multipart \
-    gradio
+    gradio 
 
 # copy file to image
 COPY ./  /usr/src/app

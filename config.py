@@ -3,18 +3,16 @@ import redis
 import os
 
 
-
-
 # common
-DATA_DIR            = r"/Users/jokkerling/Documents/Data"
+DATA_DIR            = r"/usr/data"
 TEMP_DIR            = os.path.join(DATA_DIR, "temp")
 
 
 # ucd
-UCD_APP_DIR         = os.path.join(DATA_DIR, "ucd/app")         
-UC_IMG_DIR          = os.path.join(DATA_DIR, "ucd/json_img")    
-UCD_OFFICIAL_DIR    = os.path.join(DATA_DIR, "ucd/official")    
-UCD_CUSTOMER_DIR    = os.path.join(DATA_DIR, "ucd/customer")    
+UCD_APP_DIR         = os.path.join(DATA_DIR, "ucd_app")         
+UC_IMG_DIR          = os.path.join(DATA_DIR, "json_img")    
+UCD_OFFICIAL_DIR    = os.path.join(DATA_DIR, "official")    
+UCD_CUSTOMER_DIR    = os.path.join(DATA_DIR, "customer")    
 
 # customer file
 CUSTOMER_FILE_DIR   = os.path.join(DATA_DIR, "customer_file")  
@@ -30,7 +28,7 @@ REDIS_MODEL_INFO    = "svn_model_info"
 
 # server
 SERVER_HOST         = "0.0.0.0"
-SERVER_PORT         = 11106
+SERVER_PORT         = 11101
 SERVER_LOCAL_HOST   = "127.0.0.1"
 
 # svn
@@ -44,9 +42,9 @@ MODEL_CUSTOMER_DIR  = os.path.join(DATA_DIR, "model/customer")
 
 # ui server
 UI_HOST             = "0.0.0.0"
-UI_TAGS_PORT        = 11105
+UI_TAGS_PORT        = 11106
 UI_LABELS_PORT      = 11105
-UI_DATASET_PORT     = 11101
+UI_DATASET_PORT     = 11104
 IMG_RESIZE_MAX      = 1500          # resize image 的时候允许的最长边的长度，不要修改，修改之后缓存数据需要清空
 
 # Mysql

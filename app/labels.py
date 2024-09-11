@@ -1,6 +1,5 @@
 from fastapi import APIRouter
 from fastapi.responses import HTMLResponse
-import markdown2
 import os
 import requests
 import json

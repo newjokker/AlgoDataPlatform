@@ -28,7 +28,7 @@ with gr.Blocks() as demo:
         gr.Dropdown(label="Pic Index"),""
         
     def update_label_list():
-        response = requests.get("http://192.168.3.50:11106/label/get_labels")
+        response = requests.get(f"http://{SERVER_LOCAL_HOST}:{SERVER_PORT}/label/get_labels")
         label_info = json.loads(response.text)
         label_list = label_info.get("labels", [])
         log.info(f"* update label list : {label_list}")
@@ -36,7 +36,7 @@ with gr.Blocks() as demo:
 
     def show_label_info(label_name):
         global now_label   
-        response = requests.get(f"http://192.168.3.50:11106/label/get_label_info/{label_name}")
+        response = requests.get(f"http://{SERVER_LOCAL_HOST}:{SERVER_PORT}/label/get_label_info/{label_name}")
         json_dict = json.loads(response.text)
         now_label = Label() 
         now_label.load_from_json_dict(json_dict)
@@ -180,14 +180,14 @@ with gr.Blocks() as demo:
             raise gr.Error(f"save label failed : english_name illeagal : {now_label.chinese_name}")
 
         data = {"json_str": json.dumps(now_label.save_to_json_dict()), "new_label": False}
-        response = requests.post("http://192.168.3.50:11106/label/save_label_info", json=data)
+        response = requests.post(f"http://{SERVER_LOCAL_HOST}:{SERVER_PORT}/label/save_label_info", json=data)
         log.info(response.text)
         response = json.loads(response.text)
         if response["status"] == "failed":
             log.error(f"* save label to file failed : error_info : {response['error_info']}")
             raise gr.Error(f"save label failed : {response['error_info']}")
 
-        response = requests.get("http://192.168.3.50:11106/label/get_labels")
+        response = requests.get(f"http://{SERVER_LOCAL_HOST}:{SERVER_PORT}/label/get_labels")
         label_info = json.loads(response.text)
         label_list = label_info.get("labels", [])
         log.info(f"* save label to file success")
@@ -205,14 +205,14 @@ with gr.Blocks() as demo:
             raise gr.Error(f"save label failed : english_name illeagal : {now_label.chinese_name}")
         
         data = {"json_str": json.dumps(now_label.save_to_json_dict()), "new_label": True}
-        response = requests.post("http://192.168.3.50:11106/label/save_label_info", json=data)
+        response = requests.post(f"http://{SERVER_LOCAL_HOST}:{SERVER_PORT}/label/save_label_info", json=data)
         log.info(response.text)
         response = json.loads(response.text)
         if response["status"] == "failed":
             log.error(f"* save label to file failed : error_info : {response['error_info']}")
             raise gr.Error(f"save label failed : {response['error_info']}")
 
-        response = requests.get("http://192.168.3.50:11106/label/get_labels")
+        response = requests.get(f"http://{SERVER_LOCAL_HOST}:{SERVER_PORT}/label/get_labels")
         label_info = json.loads(response.text)
         label_list = label_info.get("labels", [])
         log.info(f"* save label to file success")

@@ -1,21 +1,20 @@
 
 from fastapi import APIRouter
 from fastapi.responses import HTMLResponse
-import markdown2
 import os
 import json
 import requests
 import time
 import re
 from JoTools.utils.LogUtil import LogUtil
-# from config import MYSQL_USER, LOG_DIR, APP_LOG_NAME, SERVER_HOST, SERVER_LOCAL_HOST, SERVER_PORT
+from config import MYSQL_USER, LOG_DIR, APP_LOG_NAME, SERVER_HOST, SERVER_LOCAL_HOST, SERVER_PORT
 
 from JoTools.utils.JsonUtil import JsonUtil
 from JoTools.utils.TimeUtil import TimeUtil
 
 
-SERVER_LOCAL_HOST = "192.168.3.50"
-SERVER_PORT = 11106
+# SERVER_LOCAL_HOST = "192.168.3.50"
+# SERVER_PORT = 11106
 
 
 # TODO: 将统计信息这一块进行完善
@@ -240,10 +239,6 @@ PIC_DES_STR
             temp = temp.replace("LABEL_INFO", temp_str)
 
         return temp
-
-    def save_to_html(self):
-        html = markdown2.markdown("markdown_text")
-        return HTMLResponse(content=html, status_code=200)
 
     def save_to_json_dict(self):
         # 保存为 json 格式，用于方便在 http 上进行存储
