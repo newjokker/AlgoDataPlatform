@@ -30,21 +30,16 @@ REDIS_MODEL_INFO    = "svn_model_info"
 # server
 SERVER_HOST         = "0.0.0.0"
 SERVER_PORT         = 21101
-# SERVER_PORT         = 11101
 SERVER_LOCAL_HOST   = "127.0.0.1"
 
 # svn
 SVN_ROOT            = r"svn://192.168.3.101/repository"
 SVN_USERNAME        = "txkj"
 SVN_PASSWORD        = "txkj"
-SVN_IGNORE_DIR      = {"基础镜像", "Other", "OTHER-专项"}
 
 # model
 MODEL_SUFFIX_SET    = {".pth", ".pt", ".model", ".plan", ".om"}
-MODEL_TRAIN_SUFFIX  = {".json"}
-MODEL_CONFIG_SIFFIX = {".ini"}
 MODEL_CUSTOMER_DIR  = os.path.join(DATA_DIR, "model/customer")  
-
 
 # ui server
 UI_HOST             = "0.0.0.0"
@@ -58,6 +53,7 @@ MYSQL_HOST                = "192.168.3.33"
 MYSQL_PORT                = 3306
 MYSQL_USER                = "root"
 MYSQL_PASSWORD            = "root123"
+# MYSQL_DATABASE_NAME       = "Saturn_Database_V1"
 MYSQL_DATABASE_NAME       = "SaturnTest"
 MYSQL_TABLE_NAME          = "UcdJsonTag"
 
@@ -69,6 +65,7 @@ APP_LOG_NAME            = "app.log"
 # stastic 
 STASTIC_TAG_DIR         = os.path.join(DATA_DIR, "stastic/stastic_tags")   
 STASTIC_LABEL_DIR       = os.path.join(DATA_DIR, "stastic/stastic_labels")  
+
 
 
 r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=0)

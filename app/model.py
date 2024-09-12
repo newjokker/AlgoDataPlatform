@@ -4,27 +4,57 @@ from fastapi import APIRouter
 import subprocess
 from fastapi.responses import FileResponse
 from fastapi.exceptions import HTTPException
-from config import SVN_ROOT, SVN_PASSWORD, SVN_USERNAME, MODEL_SUFFIX_SET, TEMP_DIR, MODEL_CUSTOMER_DIR
+from config import SVN_ROOT, SVN_PASSWORD, SVN_USERNAME, MODEL_SUFFIX_SET, TEMP_DIR, MODEL_CUSTOMER_DIR, MODEL_TRAIN_SUFFIX, MODEL_CONFIG_SIFFIX, SVN_IGNORE_DIR
 from fastapi import APIRouter, File, UploadFile
 from JoTools.utils.FileOperationUtil import FileOperationUtil
+
+
+os.makedirs(MODEL_CUSTOMER_DIR, exist_ok=True)
 
 
 model_router = APIRouter(prefix="/model", tags=["model"])
 
 
 def get_model_name_and_version_from_svn_url(model_url):
+    """模型名, 模型版本号, 模型文件的名子"""
     model_path_split = model_url.split("/") 
     if len(model_path_split) < 5:
-        return None, None
+        print("length < 5", model_path_split)
+        return None, None, None
     else:
-        a, b, c, name = model_path_split[:-4]
+        model_name = "/".join(model_path_split[:-4])
+        a, b, c, model_file_name = model_path_split[-4:]
         if not (a.isdigit() and b.isdigit() and c.isdigit()):
-            return None, None
+            print("not digit", model_url)
+            return None, None, None
         version = f"v{a}.{b}.{c}"
-        return name, version 
+        return model_name, version, model_file_name
 
-@model_router.get("/check")
-async def check_model():
+def if_v1_gt_v2(v1_str, v2_str):
+    v1 = v1_str[1:].split(".")
+    v2 = v2_str[1:].split(".")
+
+    v1 = [int(x) for x in v1]
+    v2 = [int(x) for x in v2]
+
+    if v1[0] > v2[0]:
+        return True
+    elif v1[0] < v2[0]:
+        return False
+    else:
+        if v1[1] > v2[1]:
+            return True
+        elif v1[1] < v2[1]:
+            return False
+        else:
+            if v1[2] > v2[2]:
+                return True
+            elif v1[2] < v2[2]:
+                return False
+            else:
+                False
+
+def get_all_official_model_path(suffix_set, ignore_dir_set):
     # official
     official_model_list = []
     svn_download_command = f"svn list {SVN_ROOT} --username {SVN_USERNAME} --password {SVN_PASSWORD} -R"
@@ -34,14 +64,69 @@ async def check_model():
     for each_model_path in result:
         if not each_model_path:
             continue
-        if os.path.splitext(each_model_path)[1] in MODEL_SUFFIX_SET:
+
+        # ignore dir
+        ignore = False
+        for each_ignore_dir in ignore_dir_set:
+            if each_model_path.startswith(each_ignore_dir):
+                ignore = True
+                print(each_model_path)
+                break
+
+        if ignore:
+            continue
+
+        if os.path.splitext(each_model_path)[1] in suffix_set:
             official_model_list.append(each_model_path)
+    return official_model_list
+
+def get_all_customer_model_path(suffix_set):
     # customer
     customer_model_list = []
-    for each_model_path in FileOperationUtil.re_all_file(MODEL_CUSTOMER_DIR, endswitch=list(MODEL_SUFFIX_SET)):
+    for each_model_path in FileOperationUtil.re_all_file(MODEL_CUSTOMER_DIR, endswitch=list(suffix_set)):
         each_model_path = each_model_path[len(MODEL_CUSTOMER_DIR):].lstrip("/")
         customer_model_list.append(each_model_path)
-    return {"official": official_model_list, "customer": customer_model_list}
+    return customer_model_list
+
+@model_router.get("/check/official")
+async def check_model_official():
+    # 返回所有的模型路径信息
+    official_model_list = get_all_official_model_path(MODEL_SUFFIX_SET, SVN_IGNORE_DIR)
+    return official_model_list
+
+@model_router.get("/check/customer")
+async def check_model_customer():
+    # 返回所有的模型路径信息
+    customer_model_list = get_all_customer_model_path(MODEL_SUFFIX_SET)
+    return customer_model_list
+
+@model_router.get("/get_model_list")
+async def get_model_list():
+    # 展示模型和对应的各个版本，最好有最新的版本
+    error_model_path_list = []
+    model_info = {} # {"model_name":[version:[model_file_path]})]}
+
+    need_file_suffix = set()
+    need_file_suffix.update(MODEL_CONFIG_SIFFIX)
+    need_file_suffix.update(MODEL_SUFFIX_SET)
+    need_file_suffix.update(MODEL_TRAIN_SUFFIX)
+
+    official_model_path_list = get_all_official_model_path(need_file_suffix, SVN_IGNORE_DIR)
+    for each_path in official_model_path_list:
+        model_name, model_version, model_file_name = get_model_name_and_version_from_svn_url(each_path)
+        
+        if model_name is not None:
+            if model_name not in model_info:
+                model_info[model_name] = {model_version:[model_file_name]}
+            else:
+                if model_version in model_info[model_name]:
+                    model_info[model_name][model_version].append(model_file_name)
+                else:
+                    model_info[model_name][model_version] = [model_file_name] 
+        else:
+            error_model_path_list.append(each_path)
+
+    return {"error_model_path": error_model_path_list, "model_list": model_info}
 
 @model_router.get("/load/official/{model_path:path}")
 async def load_model(model_path:str):
@@ -118,9 +203,6 @@ async def upload_model(model_name:str, file: UploadFile = File(...)):
         return {"status": "success", "message": "upload model success"}
 
 
-
-
-# TODO: 找到模型的训练数据集和对应的 config.ini 文件
 
 # TODO: load_model, 提供的是 svn 地址，或者模型的 md5
 
