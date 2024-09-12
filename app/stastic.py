@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from fastapi import APIRouter, File, UploadFile, Form
 from fastapi.responses import FileResponse, Response
 from fastapi.exceptions import HTTPException
-from config import STASTIC_TAG_DIR, STASTIC_LABEL_DIR, r, REDIS_JSON_INFO
+from config import STASTIC_TAG_DIR, STASTIC_LABEL_DIR, r, REDIS_JSON_INFO, STASTIC_SVN_MODEL_DIR
 from JoTools.utils.FileOperationUtil import FileOperationUtil
 from pydantic import BaseModel
 from fastapi.responses import HTMLResponse
@@ -17,10 +17,9 @@ import shutil
 
 os.makedirs(STASTIC_TAG_DIR, exist_ok=True)
 os.makedirs(STASTIC_LABEL_DIR, exist_ok=True)
-
+os.makedirs(STASTIC_SVN_MODEL_DIR, exist_ok=True)
 
 stastic_router = APIRouter(prefix="/stastic", tags=["stastic"])
-
 
 @stastic_router.get("/stastic_tags/{date_str}")
 async def show_stastic_tags(date_str:str):
@@ -87,6 +86,131 @@ async def show_stastic_labels(date_str:str):
 
     pass
 
+@stastic_router.get("/stastic_svn_models/{date_str}")
+async def show_stastic_svn_models(date_str:str):
+    """对已跟踪的数据 Lable 进行统计"""
+
+    if date_str == "today":
+        date_str = time.strftime("%Y-%m-%d", time.localtime())
+    date_json = os.path.join(STASTIC_SVN_MODEL_DIR, f"{date_str}.json")   
+
+    if not os.path.exists(date_json):
+        return {"status": "failed", "error_info": f"no stastic_label json found : {date_json}"}
+
+    with open(r"./app/templates/stastic_svn_model.html", "r", encoding="utf-8") as file:
+        temp = file.read()
+        json_info = JsonUtil.load_data_from_json_file(date_json)
+
+        # check model_path
+        table_temp = """
+    <table>
+    <thead>
+    <tr>
+    <th>file_path</th>
+    </tr>
+    </thead>
+    <tbody>
+
+    TABLE_LINES
+
+    </tbody>
+    </table>
+    """
+        table_body = ""
+        for each_line in json_info["path_error"]:
+            table_body += f"<tr><td>{each_line}</td></tr>"
+        table_temp = table_temp.replace("TABLE_LINES", table_body)
+        temp = temp.replace("PATH_ERROR_TABLE", table_temp)
+
+        # check version
+        table_temp = """
+    <table>
+    <thead>
+    <tr>
+    <th>file_path</th>
+    </tr>
+    </thead>
+    <tbody>
+
+    TABLE_LINES
+
+    </tbody>
+    </table>
+    """
+        table_body = ""
+        for each_line in json_info["version_error"]:
+            table_body += f"<tr><td>{each_line}</td></tr>"
+        table_temp = table_temp.replace("TABLE_LINES", table_body)
+        temp = temp.replace("VERSION_ERROR_TABLE", table_temp)
+
+        # check config
+        table_temp = """
+    <table>
+    <thead>
+    <tr>
+    <th>model_name</th>
+    <th>model_version</th>
+    </tr>
+    </thead>
+    <tbody>
+
+    TABLE_LINES
+
+    </tbody>
+    </table>
+    """
+        table_body = ""
+        for each_line in json_info["no_config"]:
+            table_body += f"<tr><td>{each_line[0]}</td><td>{each_line[1]}</td></tr>"
+        table_temp = table_temp.replace("TABLE_LINES", table_body)
+        temp = temp.replace("NO_CONFIG_ERROR_TABLE", table_temp)
+
+        # check train_data
+        table_temp = """
+    <table>
+    <thead>
+    <tr>
+    <th>model_name</th>
+    <th>model_version</th>
+    </tr>
+    </thead>
+    <tbody>
+
+    TABLE_LINES
+
+    </tbody>
+    </table>
+    """
+        table_body = ""
+        for each_line in json_info["no_train_data"]:
+            table_body += f"<tr><td>{each_line[0]}</td><td>{each_line[1]}</td></tr>"
+        table_temp = table_temp.replace("TABLE_LINES", table_body)
+        temp = temp.replace("NO_TRAIN_DATA_ERROR_TABLE", table_temp)
+
+        # check no non_encrypt_model
+        table_temp = """
+    <table>
+    <thead>
+    <tr>
+    <th>model_name</th>
+    <th>model_version</th>
+    </tr>
+    </thead>
+    <tbody>
+
+    TABLE_LINES
+
+    </tbody>
+    </table>
+    """
+        table_body = ""
+        for each_line in json_info["no_non_encrypt_model"]:
+            table_body += f"<tr><td>{each_line[0]}</td><td>{each_line[1]}</td></tr>"
+        table_temp = table_temp.replace("TABLE_LINES", table_body)
+        temp = temp.replace("NO_NON_ENTRYPT_MODEL_ERROR_TABLE", table_temp)
+
+        return HTMLResponse(content=temp, status_code=200)
+
 @stastic_router.post("/upload_stastic_info")
 async def upload_stastic_info(file:UploadFile=File(...), save_type: str=Form(), save_name:str=Form(), over_write:bool=Form()):
     """上传统计数据"""
@@ -98,9 +222,11 @@ async def upload_stastic_info(file:UploadFile=File(...), save_type: str=Form(), 
         save_dir = STASTIC_TAG_DIR
     elif save_type == "label":
         save_dir = STASTIC_LABEL_DIR
+    elif save_type == "svn_model":
+        save_dir = STASTIC_SVN_MODEL_DIR
     else:
         # raise HTTPException(status_code=400, detail="save_type need in ['tag', 'label']")
-        return {"status": "failed", "error_info": f"save_type need in ['tag', 'label'] : {save_name}"} 
+        return {"status": "failed", "error_info": f"save_type need in ['tag', 'label', 'svn_model'] : {save_name}"} 
 
     if not save_name.endswith(".json"):
         # raise HTTPException(status_code=400, detail="save_name need a json")
