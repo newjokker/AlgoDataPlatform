@@ -4,6 +4,7 @@
 
 * docker run --name=algo_data_platform --volume=/home/ldq/Data:/usr/data  -v /etc/localtime:/etc/localtime  -p 11101:11101 -p 11102:11102 -p 11103:11103 -p 11104:11104 -p 11105:11105 -p 11106:11106  -d  algo_data_platform:v0.2.7
 
+* docker build -t algo_data_platform:v0.2.8 -f Dockerfile . 
 
 ### 镜像打包流程
 

@@ -19,10 +19,6 @@ doc_router = APIRouter(prefix="/doc", tags=["doc"])
 
 
 
-# TODO: 将标签展示也放到这个里面来，所有对外展示的 html 文档，全部是这个 document 需要管理的内容
-
-# TODO: 对应的应该是一个标准的 json 格式的数据 + .html 展示页面 = doc 
-
 # TODO: pingcode 的文档如何从外部读取， https://pingcode.tuxingkeji.com/open
 
 # TODO: 将文档也整合进来

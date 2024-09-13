@@ -51,7 +51,7 @@ async def upload_img_file(file: UploadFile = File(...)):
 
 
 
-
+# TODO: 和入库的文件夹分隔开，如果这下面没有对应的文件直接去指定文件夹拷贝一份过来
 
 # TODO: 支持入库的服务，但是需要权限，将入库的代码写小一点，不然太麻烦了
 

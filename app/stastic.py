@@ -84,7 +84,38 @@ async def show_stastic_labels(date_str:str):
     if not os.path.exists(date_json):
         return {"status": "failed", "error_info": f"no stastic_label json found : {date_json}"}
 
-    pass
+    with open(r"./app/templates/stastic_label.html", "r", encoding="utf-8") as file:
+        temp = file.read()
+        json_info = JsonUtil.load_data_from_json_file(date_json)
+
+        # label not in platform
+        table_temp = """
+    <table>
+    <thead>
+    <tr>
+    <th>label</th>
+    </tr>
+    </thead>
+    <tbody>
+
+    TABLE_LINES
+
+    </tbody>
+    </table>
+    """
+        table_body = ""
+        for each_line in json_info["label_not_in_platform"]:
+            table_body += f"<tr><td>{each_line}</td></tr>"
+        table_temp = table_temp.replace("TABLE_LINES", table_body)
+        temp = temp.replace("LABEL_NOT_IN_PLATFORM", table_temp)
+
+        # label in platform
+        table_temp = ""
+        for each_label in json_info["label_in_platform"]:
+            table_temp += f'<li><a href="http://192.168.3.50:11101/label/show_label_info/{each_label}">{each_label}</a></li>'
+        temp = temp.replace("LABEL_IN_PLATFORM", table_temp)
+
+    return HTMLResponse(content=temp, status_code=200)
 
 @stastic_router.get("/stastic_svn_models/{date_str}")
 async def show_stastic_svn_models(date_str:str):
