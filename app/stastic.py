@@ -115,6 +115,9 @@ async def show_stastic_labels(date_str:str):
             table_temp += f'<li><a href="http://192.168.3.50:11101/label/show_label_info/{each_label}">{each_label}</a></li>'
         temp = temp.replace("LABEL_IN_PLATFORM", table_temp)
 
+    temp = temp.replace("LABEL_LIST_INFO_URL", 
+                        '<a href="http://192.168.3.50:11101/label/show_label_list_info/192.168.3.50">已入库数据标签展示页面</a>')
+
     return HTMLResponse(content=temp, status_code=200)
 
 @stastic_router.get("/stastic_svn_models/{date_str}")

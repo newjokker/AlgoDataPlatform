@@ -5,7 +5,7 @@ WORKDIR /usr/src/app
 # install redis
 RUN apt-get update || true
 RUN apt-get install libglib2.0-0 -y && apt install libgl1-mesa-glx -y && apt-get install gcc -y || true
-RUN apt-get install vim -y && apt-get install supervisor -y && apt install redis -y 
+RUN apt-get install vim -y && apt-get install supervisor -y && apt install redis -y  &&  apt install wkhtmltopdf -y
 RUN sed -i '69s/.*/bind 127.0.0.1/' /etc/redis/redis.conf
 
 # install python package

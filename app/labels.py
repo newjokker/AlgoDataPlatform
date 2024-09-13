@@ -1,23 +1,23 @@
 from fastapi import APIRouter
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, FileResponse
 import os
 import requests
 import json
 from JoTools.utils.LogUtil import LogUtil
-from config import MYSQL_USER, LOG_DIR, APP_LOG_NAME, LABEL_DIR, SERVER_PORT, SERVER_LOCAL_HOST
+from config import MYSQL_USER, LOG_DIR, APP_LOG_NAME, LABEL_DIR, SERVER_PORT, SERVER_LOCAL_HOST, TEMP_DIR
 from typing import List
 from pydantic import BaseModel
 from .tools import Label
 from JoTools.utils.FileOperationUtil import FileOperationUtil
 from typing import List
+import subprocess
+import uuid
 
 log_path = os.path.join(LOG_DIR, APP_LOG_NAME)
 log = LogUtil.get_log(log_path, 5, "labels", print_to_console=False)
 
 label_router = APIRouter(prefix="/label", tags=["label"])
 
-
-# TODO 先直接托管 .md 文件，使用网页的方式展示出来
 
 
 os.makedirs(LABEL_DIR, exist_ok=True)
@@ -113,7 +113,7 @@ async def show_label_list_info(host:str):
         html = html.replace("ALL_LABELS_NEED_PLACE", label_str)
         return HTMLResponse(content=html, status_code=200)
 
-@label_router.post("/download_labels_pdf/{label_list_str}")
+@label_router.get("/download_labels_pdf/{label_list_str}")
 async def download_labels_pdf(label_list_str:str):    
     # 网页使用分页符，分割多个页面即可， <div style="page-break-after: always;"></div>
     # 多个标签的网页需要生成一个导航的表头，要显示有多少标签，标签的顺序，标签页面的快捷按钮
@@ -121,10 +121,21 @@ async def download_labels_pdf(label_list_str:str):
 
     url = f"http://{SERVER_LOCAL_HOST}:{SERVER_PORT}/label/show_label_info/{label_list_str}"
 
+    save_path = os.path.join(TEMP_DIR, f"{str(uuid.uuid1())}.pdf")
+
+    try:
+        # 执行 wkhtmltopdf 命令，将 http://example.com 转换为 example.pdf
+        result = subprocess.run(['wkhtmltopdf', '--no-stop-slow-scripts', '--javascript-delay', '5000', url, save_path], check=True, text=True, \
+                                stdout=subprocess.PIPE,  stderr=subprocess.PIPE)
+        print("PDF generated successfully!")
+    except subprocess.CalledProcessError as e:
+        # 如果命令失败，打印错误信息
+        print(f"Error occurred: {e}")
+        print(f"Return code: {e.returncode}")
+        print(f"Command stderr: {e.stderr}")
+
+    if os.path.exists(save_path):
+        FileResponse(save_path)
+    else:
+        return {"status": "failed", "error_info": f"save pdf from url failed : {url}"}
     
-
-    # 查看所有的 label 是不是都是在库里面，多个 label 生成一个 pdf ， 
-    # pdf 有自己的模板，pdf 
-
-
-    pass

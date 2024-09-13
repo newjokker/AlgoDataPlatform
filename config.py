@@ -4,8 +4,8 @@ import os
 
 
 # common
-# DATA_DIR            = r"/usr/data"
-DATA_DIR            = r"/home/ldq/Data"
+DATA_DIR            = r"/usr/data"
+# DATA_DIR            = r"/home/ldq/Data"
 TEMP_DIR            = os.path.join(DATA_DIR, "temp")
 
 
@@ -29,8 +29,8 @@ REDIS_MODEL_INFO    = "svn_model_info"
 
 # server
 SERVER_HOST         = "0.0.0.0"
-SERVER_PORT         = 21101
-# SERVER_PORT         = 11101
+# SERVER_PORT         = 21101
+SERVER_PORT         = 11101
 SERVER_LOCAL_HOST   = "127.0.0.1"
 
 # svn
