@@ -98,12 +98,14 @@ def get_all_customer_model_path(suffix_set):
 async def check_model_official():
     # 返回所有的模型路径信息
     official_model_list = get_all_official_model_path(MODEL_SUFFIX_SET, SVN_IGNORE_DIR)
+    log.info(f"* check official")
     return official_model_list
 
 @model_router.get("/check/customer")
 async def check_model_customer():
     # 返回所有的模型路径信息
     customer_model_list = get_all_customer_model_path(MODEL_SUFFIX_SET)
+    log.info(f"* check customer")
     return customer_model_list
 
 @model_router.get("/get_model_list")
@@ -131,7 +133,7 @@ async def get_model_list():
                     model_info[model_name][model_version] = [model_file_name] 
         else:
             error_model_path_list.append(each_path)
-
+    log.info("* get_model_list")
     return {"error_model_path": error_model_path_list, "model_list": model_info}
 
 @model_router.get("/load/official/{model_path:path}")
@@ -146,14 +148,17 @@ async def load_model(model_path:str):
     model_save_path         = f"{save_model_dir}/{model_name}"
 
     if os.path.exists(model_save_path):
+        log.error(f"* load offocial : {model_path}")
         return FileResponse(model_save_path, media_type = "application/octet-stream", filename=model_name)
     else:
         os.makedirs(save_model_dir, exist_ok=True)
         svn_download_command = f"svn export {SVN_ROOT}/{model_path} {model_save_path} --username txkj --password txkj"
         try:
             subprocess.run(svn_download_command, shell=True, check=True)
+            log.info(f"* load offocial : {model_path}")
             return FileResponse(model_save_path, media_type = "application/octet-stream", filename=model_name)
         except subprocess.CalledProcessError as e:
+            log.error(f"* download from SVN failed : {model_path} , error : {e}")
             return HTTPException(status_code=500, detail=f"download from SVN failed : {model_path} , error : {e}")
 
 @model_router.get("/load/customer/{model_path:path}")
@@ -168,8 +173,10 @@ async def load_model(model_path:str):
     model_save_path         = f"{save_model_dir}/{model_name}"
 
     if os.path.exists(model_save_path):
+        log.info(f"* load model : {model_path}")
         return FileResponse(model_save_path, media_type = "application/octet-stream", filename=model_name)
     else:
+        log.error(f"* load model info failed, model path not exists : {model_path}")
         return HTTPException(status_code=500, detail=f"model path not exists : {model_path}")
     
 @model_router.get("/delete/{model_name:path}")
@@ -183,8 +190,10 @@ async def delete_model(model_name:str):
 
     if os.path.exists(model_path):
         os.remove(model_path)
+        log.info(f"* delete dataset success : {model_path}")
         return {"status": f"* delete dataset success : {model_path}"}
     else:
+        log.error(f"{model_path} not exists in model customer dir")
         return HTTPException(status_code=500, detail=f"{model_path} not exists in model customer dir")
 
 @model_router.post("/upload/{model_name:path}")
@@ -192,12 +201,14 @@ async def upload_model(model_name:str, file: UploadFile = File(...)):
 
     model_suffix = os.path.splitext(model_name)[1]
     if model_suffix not in MODEL_SUFFIX_SET:
+        log.error(f"* upload model failed : model suffix must in {MODEL_SUFFIX_SET}")
         return HTTPException(status_code=500, detail=f"model suffix must in {MODEL_SUFFIX_SET}")
 
     save_model_path = os.path.join(MODEL_CUSTOMER_DIR, model_name)
     contents = await file.read()
 
     if os.path.exists(save_model_path):
+        log.error(f"* upload model failed : {model_name} exists, change a new name")
         return HTTPException(status_code=500, detail=f"{model_name} exists, change a new name")
     else:
         save_model_folder = os.path.split(save_model_path)[0]
@@ -205,7 +216,7 @@ async def upload_model(model_name:str, file: UploadFile = File(...)):
 
         with open(save_model_path, "wb") as f:
             f.write(contents)
-
+        log.info(f"* upload model success : {model_name}")
         return {"status": "success", "message": "upload model success"}
 
 

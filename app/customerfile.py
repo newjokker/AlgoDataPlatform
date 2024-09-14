@@ -15,9 +15,7 @@ log = LogUtil.get_log(log_path, 5, "customer_file", print_to_console=False)
 
 os.makedirs(CUSTOMER_FILE_DIR, exist_ok=True)
 
-
 customer_file_router = APIRouter(prefix="/customer_file", tags=["file"])
-
 
 @customer_file_router.get("/download/{filename}")
 async def download_file(filename:str):

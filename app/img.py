@@ -35,7 +35,6 @@ async def download_uc_file(uc_suffix:str):
     else:
         return {"error": "suffix error, suffix must in ['.jpg', '.json']"}
 
-
 @img_router.post("/upload")
 async def upload_img_file(file: UploadFile = File(...)):
     if ucd_name.endswith(".json"):

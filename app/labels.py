@@ -18,10 +18,7 @@ log = LogUtil.get_log(log_path, 5, "labels", print_to_console=False)
 
 label_router = APIRouter(prefix="/label", tags=["label"])
 
-
-
 os.makedirs(LABEL_DIR, exist_ok=True)
-
 
 class LabelInfo(BaseModel):
     json_str:str
@@ -34,12 +31,14 @@ async def get_labels():
         if each_file.endswith(".json"):
             return_info["labels"].append(each_file[:-5])
     return_info["status"] = "success"
+    log.info(f"* get labels")
     return return_info
 
 @label_router.get("/get_label_info/{label_name}")
 async def get_label_info(label_name:str):
     label_path = os.path.join(LABEL_DIR, f"{label_name}.json")
     a = Label(label_path)
+    log.info(f"* get label info : {label_name}")
     return  a.save_to_json_dict()
 
 @label_router.post("/save_label_info")
@@ -86,6 +85,7 @@ async def show_label_info(label_name_list_str:str):
     for each_name in label_name_list:
         label_path = os.path.join(LABEL_DIR, f"{each_name}.json")
         if not os.path.exists(label_path):
+            log.error(f"show label info failed : {label_name_list_str}, json path not exists : {label_path}")
             return {"error_info": f"json path not exists : {label_path}"}
         else:
             a = Label(label_path)
@@ -93,6 +93,7 @@ async def show_label_info(label_name_list_str:str):
             html_str += a.get_html_temp_str()
 
     html = temp.replace("LABEL_INFO", html_str)
+    log.info(f"* show_label_info : {label_name_list_str}")
     return HTMLResponse(content=html, status_code=200)
 
 @label_router.get("/show_label_list_info/{host}")
@@ -111,6 +112,7 @@ async def show_label_list_info(host:str):
             label_str += f'{{ name: "{each_label}", url: "{url}" }},'
         
         html = html.replace("ALL_LABELS_NEED_PLACE", label_str)
+        log.info(f"* show_label_list_info")
         return HTMLResponse(content=html, status_code=200)
 
 @label_router.get("/download_labels_pdf/{label_list_str}")

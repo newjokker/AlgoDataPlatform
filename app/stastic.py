@@ -69,7 +69,7 @@ async def show_stastic_tags(date_str:str):
         temp = temp.replace("STASTIC_TAG_COUNT_STR", tag_stastic_info)
         temp = temp.replace("TAG_NOT_IN_MYSQL_STR", tag_not_in_mysql_str)
         temp = temp.replace("TAG_IN_MYSQL_STR", tag_in_mysql_str)
-
+        log.info(f"* stastic_tags : {date_str}")
         return HTMLResponse(content=temp, status_code=200)
 
 @stastic_router.get("/stastic_labels/{date_str}")
@@ -123,7 +123,7 @@ async def show_stastic_labels(date_str:str):
 
     temp = temp.replace("LABEL_LIST_INFO_URL", 
                         '<a href="http://192.168.3.50:11101/label/show_label_list_info/192.168.3.50">已入库数据标签展示页面</a>')
-
+    log.info(f"* stastic_labels : {date_str}")
     return HTMLResponse(content=temp, status_code=200)
 
 @stastic_router.get("/stastic_svn_models/{date_str}")
@@ -248,7 +248,7 @@ async def show_stastic_svn_models(date_str:str):
             table_body += f"<tr><td>{each_line[0]}</td><td>{each_line[1]}</td></tr>"
         table_temp = table_temp.replace("TABLE_LINES", table_body)
         temp = temp.replace("NO_NON_ENTRYPT_MODEL_ERROR_TABLE", table_temp)
-
+        log.info(f"* stastic_svn_models : {date_str}")
         return HTMLResponse(content=temp, status_code=200)
 
 @stastic_router.post("/upload_stastic_info")
@@ -266,21 +266,25 @@ async def upload_stastic_info(file:UploadFile=File(...), save_type: str=Form(), 
         save_dir = STASTIC_SVN_MODEL_DIR
     else:
         # raise HTTPException(status_code=400, detail="save_type need in ['tag', 'label']")
+        log.error(f"* upload_stastic_info failed, save_type need in ['tag', 'label', 'svn_model'] : {save_name}")
         return {"status": "failed", "error_info": f"save_type need in ['tag', 'label', 'svn_model'] : {save_name}"} 
 
     if not save_name.endswith(".json"):
         # raise HTTPException(status_code=400, detail="save_name need a json")
+        log.error(f"* upload_stastic_info failed, save_name need a json : {save_name}")
         return {"status": "failed", "error_info": f"save_name need a json : {save_name}"} 
 
     save_path = os.path.join(save_dir, save_name)
 
     if os.path.exists(save_path) and (over_write is False):
         # raise HTTPException(status_code=400, detail="file exists and over_write is False")
+        log.error(f"* upload_stastic_info failed, file exists and over_write is False")
         return {"status": "failed", "error_info": f"file exists and over_write is False"} 
 
     # save to assign path
     with open(save_path, 'wb') as buffer:
         shutil.copyfileobj(file.file, buffer)
+        log.info(f"* upload_stastic_info success")
         return {"status": "success"}
 
 
