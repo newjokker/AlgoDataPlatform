@@ -207,6 +207,7 @@ PIC_DES_STR
         pic_str = ""
         for each_des, each_url, each_img_info in self.pic_describe:            
             each_url = each_url.replace("ENV_HOST", ENV_HOST)
+            each_url = each_url.replace("SERVER_PORT", SERVER_PORT)
             width = 500
             # 
             if "width" in each_img_info:
@@ -289,7 +290,7 @@ PIC_DES_STR
             files = {"file": (os.path.basename(img_path), file)}
             response = requests.post(url=url, files=files)
             file_name = json.loads(response.text)
-            file_path = f"http://ENV_HOST:{SERVER_PORT}/customer_file/download/{file_name}"
+            file_path = f"http://ENV_HOST:SERVER_PORT/customer_file/download/{file_name}"
             
             # 文件拷贝一份到本地的文件夹中, 防止丢失
             save_path = os.path.join(LABEL_IMAGE_DIR, file_name)
