@@ -308,6 +308,18 @@ PIC_DES_STR
             return file_path
 
 
+def json_to_html(json_info):
+    # TODO: 支持表格
+    # TODO: 支持列表
+    # TODO: 支持图片
+    # TODO: 支持链接
+
+    # 只处理常见的场景，
+
+    pass
+
+
+
 if __name__ == "__main__":
 
     json_file_path = "/usr/data/labels/test_md.json"
