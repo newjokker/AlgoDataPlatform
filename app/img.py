@@ -5,6 +5,12 @@ from fastapi import APIRouter, File, UploadFile
 from fastapi.responses import FileResponse, Response
 from config import UC_IMG_DIR
 from fastapi.exceptions import HTTPException
+from JoTools.utils.LogUtil import LogUtil
+from config import LOG_DIR, APP_LOG_NAME
+
+
+log_path = os.path.join(LOG_DIR, APP_LOG_NAME)
+log = LogUtil.get_log(log_path, 5, "uc", print_to_console=False)
 
 
 img_router = APIRouter(prefix="/file", tags=["img"])

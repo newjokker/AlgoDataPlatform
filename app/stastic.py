@@ -13,6 +13,12 @@ from pydantic import BaseModel
 from fastapi.responses import HTMLResponse
 from JoTools.utils.JsonUtil import JsonUtil
 import shutil
+from JoTools.utils.LogUtil import LogUtil
+from config import LOG_DIR, APP_LOG_NAME
+
+
+log_path = os.path.join(LOG_DIR, APP_LOG_NAME)
+log = LogUtil.get_log(log_path, 5, "stastic", print_to_console=False)
 
 
 os.makedirs(STASTIC_TAG_DIR, exist_ok=True)

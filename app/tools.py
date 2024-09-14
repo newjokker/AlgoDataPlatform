@@ -8,9 +8,14 @@ import time
 import re
 from JoTools.utils.LogUtil import LogUtil
 from config import MYSQL_USER, LOG_DIR, APP_LOG_NAME, SERVER_HOST, SERVER_LOCAL_HOST, SERVER_PORT
-
 from JoTools.utils.JsonUtil import JsonUtil
 from JoTools.utils.TimeUtil import TimeUtil
+from JoTools.utils.LogUtil import LogUtil
+from config import LOG_DIR, APP_LOG_NAME
+
+
+log_path = os.path.join(LOG_DIR, APP_LOG_NAME)
+log = LogUtil.get_log(log_path, 5, "tools", print_to_console=False)
 
 
 # SERVER_LOCAL_HOST = "192.168.3.50"

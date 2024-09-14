@@ -4,7 +4,11 @@ from JoTools.utils.FileOperationUtil import FileOperationUtil
 from config import UCD_APP_DIR
 from fastapi.responses import FileResponse
 from fastapi.exceptions import HTTPException
+from config import LOG_DIR, APP_LOG_NAME
+from JoTools.utils.LogUtil import LogUtil
 
+log_path = os.path.join(LOG_DIR, APP_LOG_NAME)
+log = LogUtil.get_log(log_path, 5, "app", print_to_console=False)
 
 
 app_router = APIRouter(prefix="/app", tags=["app"])

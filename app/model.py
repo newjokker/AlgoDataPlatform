@@ -7,6 +7,12 @@ from fastapi.exceptions import HTTPException
 from config import SVN_ROOT, SVN_PASSWORD, SVN_USERNAME, MODEL_SUFFIX_SET, TEMP_DIR, MODEL_CUSTOMER_DIR, MODEL_TRAIN_SUFFIX, MODEL_CONFIG_SIFFIX, SVN_IGNORE_DIR
 from fastapi import APIRouter, File, UploadFile
 from JoTools.utils.FileOperationUtil import FileOperationUtil
+from JoTools.utils.LogUtil import LogUtil
+from config import LOG_DIR, APP_LOG_NAME
+
+
+log_path = os.path.join(LOG_DIR, APP_LOG_NAME)
+log = LogUtil.get_log(log_path, 5, "model", print_to_console=False)
 
 
 os.makedirs(MODEL_CUSTOMER_DIR, exist_ok=True)
