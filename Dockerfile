@@ -10,12 +10,12 @@ RUN apt-get install vim -y && apt-get install supervisor -y && apt install redis
 RUN sed -i '69s/.*/bind 127.0.0.1/' /etc/redis/redis.conf
 
 # install python package
-RUN pip install -i https://mirrors.aliyun.com/pypi/simple/redis
-RUN pip install -i https://mirrors.aliyun.com/pypi/simple/uvicorn
-RUN pip install -i https://mirrors.aliyun.com/pypi/simple/fastapi 
-RUN pip install -i https://mirrors.aliyun.com/pypi/simple/JoUtil 
-RUN pip install -i https://mirrors.aliyun.com/pypi/simple/python-multipart 
-RUN pip install -i https://mirrors.aliyun.com/pypi/simple/gradio 
+RUN pip install -i https://mirrors.aliyun.com/pypi/simple redis
+RUN pip install -i https://mirrors.aliyun.com/pypi/simple uvicorn
+RUN pip install -i https://mirrors.aliyun.com/pypi/simple fastapi 
+RUN pip install -i https://mirrors.aliyun.com/pypi/simple JoUtil 
+RUN pip install -i https://mirrors.aliyun.com/pypi/simple python-multipart 
+RUN pip install -i https://mirrors.aliyun.com/pypi/simple gradio 
 
 # copy file to image
 COPY ./  /usr/src/app
