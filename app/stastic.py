@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from fastapi import APIRouter, File, UploadFile, Form
 from fastapi.responses import FileResponse, Response
 from fastapi.exceptions import HTTPException
-from config import STASTIC_TAG_DIR, STASTIC_LABEL_DIR, r, REDIS_JSON_INFO, STASTIC_SVN_MODEL_DIR
+from config import STASTIC_TAG_DIR, STASTIC_LABEL_DIR, r, REDIS_JSON_INFO, STASTIC_SVN_MODEL_DIR, ENV_HOST, SERVER_PORT
 from JoTools.utils.FileOperationUtil import FileOperationUtil
 from pydantic import BaseModel
 from fastapi.responses import HTMLResponse
@@ -118,11 +118,10 @@ async def show_stastic_labels(date_str:str):
         # label in platform
         table_temp = ""
         for each_label in json_info["label_in_platform"]:
-            table_temp += f'<li><a href="http://192.168.3.50:11101/label/show_label_info/{each_label}">{each_label}</a></li>'
+            table_temp += f'<li><a href="http://{ENV_HOST}:{SERVER_PORT}/label/show_label_info/{each_label}">{each_label}</a></li>'
         temp = temp.replace("LABEL_IN_PLATFORM", table_temp)
 
-    temp = temp.replace("LABEL_LIST_INFO_URL", 
-                        '<a href="http://192.168.3.50:11101/label/show_label_list_info/192.168.3.50">已入库数据标签展示页面</a>')
+    temp = temp.replace("LABEL_LIST_INFO_URL", f'<a href="http://{ENV_HOST}:{SERVER_PORT}/label/show_label_list_info">已入库数据标签展示页面</a>')
     log.info(f"* stastic_labels : {date_str}")
     return HTMLResponse(content=temp, status_code=200)
 

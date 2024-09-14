@@ -1,15 +1,11 @@
 from fastapi import APIRouter
 from fastapi.responses import HTMLResponse, FileResponse
 import os
-import requests
 import json
 from JoTools.utils.LogUtil import LogUtil
-from config import MYSQL_USER, LOG_DIR, APP_LOG_NAME, LABEL_DIR, SERVER_PORT, SERVER_LOCAL_HOST, TEMP_DIR
-from typing import List
+from config import LOG_DIR, APP_LOG_NAME, LABEL_DIR, SERVER_PORT, SERVER_LOCAL_HOST, TEMP_DIR, ENV_HOST
 from pydantic import BaseModel
 from .tools import Label
-from JoTools.utils.FileOperationUtil import FileOperationUtil
-from typing import List
 import subprocess
 import uuid
 
@@ -96,8 +92,8 @@ async def show_label_info(label_name_list_str:str):
     log.info(f"* show_label_info : {label_name_list_str}")
     return HTMLResponse(content=html, status_code=200)
 
-@label_router.get("/show_label_list_info/{host}")
-async def show_label_list_info(host:str):
+@label_router.get("/show_label_list_info")
+async def show_label_list_info():
     """label 信息总览"""
     label_list = []
     for each_file in os.listdir(LABEL_DIR):
@@ -108,7 +104,7 @@ async def show_label_list_info(host:str):
         html = file.read()
         label_str = ""
         for each_label in label_list:
-            url = f"http://{host}:{SERVER_PORT}/label/show_label_info/{each_label}"
+            url = f"http://{ENV_HOST}:{SERVER_PORT}/label/show_label_info/{each_label}"
             label_str += f'{{ name: "{each_label}", url: "{url}" }},'
         
         html = html.replace("ALL_LABELS_NEED_PLACE", label_str)

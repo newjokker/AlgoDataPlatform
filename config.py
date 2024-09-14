@@ -8,7 +8,6 @@ DATA_DIR            = r"/usr/data"
 # DATA_DIR            = r"/home/ldq/Data"
 TEMP_DIR            = os.path.join(DATA_DIR, "temp")
 
-
 # ucd
 UCD_APP_DIR         = os.path.join(DATA_DIR, "ucd_app")         
 UC_IMG_DIR          = os.path.join(DATA_DIR, "json_img")    
@@ -32,6 +31,7 @@ SERVER_HOST         = "0.0.0.0"
 # SERVER_PORT         = 21101
 SERVER_PORT         = 11101
 SERVER_LOCAL_HOST   = "127.0.0.1"
+ENV_HOST            = os.environ.get("HOST_IP", "192.168.3.62")
 
 # svn
 SVN_ROOT            = r"svn://192.168.3.101/repository"

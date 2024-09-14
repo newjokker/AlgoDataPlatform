@@ -7,7 +7,7 @@ import requests
 import time
 import re
 from JoTools.utils.LogUtil import LogUtil
-from config import MYSQL_USER, LOG_DIR, APP_LOG_NAME, SERVER_HOST, SERVER_LOCAL_HOST, SERVER_PORT
+from config import MYSQL_USER, LOG_DIR, APP_LOG_NAME, SERVER_HOST, SERVER_LOCAL_HOST, SERVER_PORT, ENV_HOST
 from JoTools.utils.JsonUtil import JsonUtil
 from JoTools.utils.TimeUtil import TimeUtil
 from JoTools.utils.LogUtil import LogUtil
@@ -16,14 +16,6 @@ from config import LOG_DIR, APP_LOG_NAME
 
 log_path = os.path.join(LOG_DIR, APP_LOG_NAME)
 log = LogUtil.get_log(log_path, 5, "tools", print_to_console=False)
-
-
-# SERVER_LOCAL_HOST = "192.168.3.50"
-# SERVER_PORT = 11106
-
-
-# TODO: 将统计信息这一块进行完善
-
 
 
 class Label(object):
@@ -120,20 +112,6 @@ class Label(object):
         else:
             return False
 
-        # if name is None:
-        #     return False
-        # elif " " in name:
-        #     return False
-        # elif "," in name:
-        #     return False
-        # elif "，" in name:
-        #     return False
-        # elif name == "":
-        #     return False
-        # else:
-        #     self.english_name = name
-        #     return True
-
     def set_describe(self, des):
         self.describe = des
 
@@ -227,6 +205,10 @@ PIC_DES_STR
         # 
         pic_str = ""
         for each_des, each_url, each_img_info in self.pic_describe:
+            
+            # TODO: 这边的 each_url 实时替换为当前的  ENV_HOST
+            each_url = each_url.replace("ENV_HOST", ENV_HOST)
+            
             width = 500
             # 
             if "width" in each_img_info:
@@ -309,7 +291,7 @@ PIC_DES_STR
             files = {"file": (os.path.basename(img_path), file)}
             response = requests.post(url=url, files=files)
             file_name = json.loads(response.text)
-            file_path = f"http://192.168.3.50:{SERVER_PORT}/customer_file/download/{file_name}"
+            file_path = f"http://ENV_HOST:{SERVER_PORT}/customer_file/download/{file_name}"
             return file_path
 
 
