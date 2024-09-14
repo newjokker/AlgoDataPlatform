@@ -128,7 +128,13 @@ with gr.Blocks() as demo:
         # log.info(f"* add pic_info : region -> {now_label.save_to_json_dict()}")
 
         if pic_width in [None, ""]:
-            image_info = {}
+            # 默认的 图像的 w > h, 图片宽度为 800 w < h 宽度为 500
+            img = Image.open(img_path)
+            width, height = img.size
+            if width > height:
+                image_info = {"width": 800}
+            else:
+                image_info = {"width": 500}
         else:
             image_info = {"width": int(pic_width)}
 
