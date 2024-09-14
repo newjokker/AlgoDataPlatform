@@ -62,7 +62,7 @@ MYSQL_DATABASE_NAME       = "SaturnTest"
 MYSQL_TABLE_NAME          = "UcdJsonTag"
 
 # log
-LOG_DIR                 = "./logs"
+LOG_DIR                 = os.path.join(DATA_DIR, "logs") 
 UI_LOG_NAME             = "ui.log"
 APP_LOG_NAME            = "app.log"
 
