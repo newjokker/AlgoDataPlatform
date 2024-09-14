@@ -1,8 +1,8 @@
 #!/bin/bash
 
-rm -r ./logs/*
-mkdir -p ./logs
-mkdir -p ./logs/supervisord
+# rm -r ./logs/*
+mkdir -p /usr/data/logs
+mkdir -p /usr/data/logs/supervisord
 
 source ~/.bash_aliases
 
