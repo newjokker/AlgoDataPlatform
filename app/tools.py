@@ -207,7 +207,7 @@ PIC_DES_STR
         pic_str = ""
         for each_des, each_url, each_img_info in self.pic_describe:            
             each_url = each_url.replace("ENV_HOST", ENV_HOST)
-            each_url = each_url.replace("SERVER_PORT", SERVER_PORT)
+            each_url = each_url.replace("SERVER_PORT", str(SERVER_PORT))
             width = 500
             # 
             if "width" in each_img_info:
