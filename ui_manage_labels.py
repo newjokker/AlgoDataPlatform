@@ -9,6 +9,7 @@ from config import UI_TAGS_PORT, UI_HOST, SERVER_PORT, SERVER_LOCAL_HOST, LOG_DI
 from JoTools.utils.LogUtil import LogUtil
 from app.tools import Label
 import os
+from PIL import Image
 
 log_path = os.path.join(LOG_DIR, UI_LOG_NAME)
 log = LogUtil.get_log(log_path, 5, "ui_manage_labels", print_to_console=False)
@@ -108,7 +109,13 @@ with gr.Blocks() as demo:
         # log.info(f"* update pic_info : region -> {now_label.save_to_json_dict()}")
         image_info = {}
         if pic_width in [None, "None"]:
-            image_info = None
+            # 默认的 图像的 w > h, 图片宽度为 800 w < h 宽度为 500
+            img = Image.open('path/to/your/image.jpg')
+            width, height = img.size
+            if width > height:
+                image_info = {"width": 800}
+            else:
+                image_info = {"width": 500}
         else:
             image_info = {"width": int(pic_width)}
         now_label.update_pic_info(int(pic_index), pic_des=pic_des, pic_path=pic_path, image_info=image_info)
