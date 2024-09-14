@@ -38,6 +38,8 @@ def load_img_if_not_exists(uc):
     with open(save_img_path, 'wb') as file:
         file.write(response.content)
 
+    log.info(f"* load img from : http://192.168.3.111:11101/file/{uc}.jpg")
+
 def get_official_cache_list():
 
     global now_dataset_name
@@ -223,6 +225,8 @@ def clear_json_xml(json_path):
     
     if os.path.exists(save_json_xml_dir):
         shutil.rmtree(save_json_xml_dir)
+    
+    log.info(f"* clear json_xml dir")
     return f"clear shape info (.xml) success"
 
 

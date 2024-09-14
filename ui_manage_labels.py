@@ -9,7 +9,6 @@ from config import UI_TAGS_PORT, UI_HOST, SERVER_PORT, SERVER_LOCAL_HOST, LOG_DI
 from JoTools.utils.LogUtil import LogUtil
 from app.tools import Label
 import os
-import re
 
 log_path = os.path.join(LOG_DIR, UI_LOG_NAME)
 log = LogUtil.get_log(log_path, 5, "ui_manage_labels", print_to_console=False)
