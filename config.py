@@ -18,7 +18,8 @@ UCD_CUSTOMER_DIR    = os.path.join(DATA_DIR, "customer")
 CUSTOMER_FILE_DIR   = os.path.join(DATA_DIR, "customer_file")  
 
 # label
-LABEL_DIR           = os.path.join(DATA_DIR, "labels")          
+LABEL_DIR           = os.path.join(DATA_DIR, "labels")         
+LABEL_IMAGE_DIR     = os.path.join(LABEL_DIR, "images") 
 
 # redis
 REDIS_HOST          = "127.0.0.1"

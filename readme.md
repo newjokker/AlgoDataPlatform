@@ -22,6 +22,8 @@
 
 * v0.2.x  增加 label 和 tag 相关的信息
 
+* v0.3.x  完善 logo, log, env_host 等
+
 
 
 ### TODO

@@ -6,10 +6,9 @@ import json
 import requests
 import time
 import re
+import shutil
 from JoTools.utils.LogUtil import LogUtil
-from config import MYSQL_USER, LOG_DIR, APP_LOG_NAME, SERVER_HOST, SERVER_LOCAL_HOST, SERVER_PORT, ENV_HOST
-from JoTools.utils.JsonUtil import JsonUtil
-from JoTools.utils.TimeUtil import TimeUtil
+from config import LOG_DIR, APP_LOG_NAME, SERVER_LOCAL_HOST, SERVER_PORT, ENV_HOST, LABEL_DIR, LABEL_IMAGE_DIR
 from JoTools.utils.LogUtil import LogUtil
 from config import LOG_DIR, APP_LOG_NAME
 
@@ -17,6 +16,8 @@ from config import LOG_DIR, APP_LOG_NAME
 log_path = os.path.join(LOG_DIR, APP_LOG_NAME)
 log = LogUtil.get_log(log_path, 5, "tools", print_to_console=False)
 
+os.makedirs(LABEL_DIR, exist_ok=True)
+os.makedirs(LABEL_IMAGE_DIR, exist_ok=True)
 
 class Label(object):
 
@@ -204,11 +205,8 @@ PIC_DES_STR
 
         # 
         pic_str = ""
-        for each_des, each_url, each_img_info in self.pic_describe:
-            
-            # TODO: 这边的 each_url 实时替换为当前的  ENV_HOST
+        for each_des, each_url, each_img_info in self.pic_describe:            
             each_url = each_url.replace("ENV_HOST", ENV_HOST)
-            
             width = 500
             # 
             if "width" in each_img_info:
@@ -292,6 +290,10 @@ PIC_DES_STR
             response = requests.post(url=url, files=files)
             file_name = json.loads(response.text)
             file_path = f"http://ENV_HOST:{SERVER_PORT}/customer_file/download/{file_name}"
+            
+            # 文件拷贝一份到本地的文件夹中, 防止丢失
+            save_path = os.path.join(LABEL_IMAGE_DIR, file_name)
+            shutil.copy(img_path, save_path)
             return file_path
 
 
