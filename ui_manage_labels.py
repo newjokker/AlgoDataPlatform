@@ -110,7 +110,7 @@ with gr.Blocks() as demo:
         image_info = {}
         if pic_width in [None, "None"]:
             # 默认的 图像的 w > h, 图片宽度为 800 w < h 宽度为 500
-            img = Image.open('path/to/your/image.jpg')
+            img = Image.open(pic_path)
             width, height = img.size
             if width > height:
                 image_info = {"width": 800}
