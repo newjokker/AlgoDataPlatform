@@ -15,6 +15,10 @@ UCD_OFFICIAL_DIR    = os.path.join(DATA_DIR, "ucd_official")
 UCD_CUSTOMER_DIR    = os.path.join(DATA_DIR, "ucd_customer")    
 UCD_EXE_PATH        = os.path.join(UCD_APP_DIR, "ucd")          # 可执行文件的地址，直接调用里面的同步功能
 
+# sync
+REMOTE_SYNC_DIR     = os.path.join(DATA_DIR, "sync")
+REMOTE_SYNC_CONFIG  = os.path.join(REMOTE_SYNC_DIR, "config.ini") 
+
 # customer file
 CUSTOMER_FILE_DIR   = os.path.join(DATA_DIR, "customer_file")  
 

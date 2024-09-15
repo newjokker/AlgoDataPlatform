@@ -14,11 +14,10 @@ from config import LOG_DIR, APP_LOG_NAME
 log_path = os.path.join(LOG_DIR, APP_LOG_NAME)
 log = LogUtil.get_log(log_path, 5, "model", print_to_console=False)
 
+model_router = APIRouter(prefix="/model", tags=["model"])
+
 
 os.makedirs(MODEL_CUSTOMER_DIR, exist_ok=True)
-
-
-model_router = APIRouter(prefix="/model", tags=["model"])
 
 
 def get_model_name_and_version_from_svn_url(model_url):
