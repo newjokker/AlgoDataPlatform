@@ -16,6 +16,18 @@ log = LogUtil.get_log(log_path, 5, "sync", print_to_console=False)
 sync_router = APIRouter(prefix="/sync", tags=["sync"])
 
 
+@sync_router.get("/ucd_official_customer")
+def update_ucd_official_customer():
+    # TODO: 点击自动同步 ucd officical customer ，删除再下载，或者只下载没有的之类的功能
+    
+    pass
+
+@sync_router.get("/ucd_official_customer")
+def update_ucd_img_cache():
+# TODO: 点击扫描追踪的服务器的指定地址今天的新增数据有没有同步过来，也可以同步历史数据
+    pass
+
+
 
 # 同步的数据平台，可以将指定的同步数据直接发送到这边进行保存，可以配置同步的信息，保存的规则等等
 

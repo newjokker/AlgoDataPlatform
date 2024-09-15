@@ -11,8 +11,8 @@ TEMP_DIR            = os.path.join(DATA_DIR, "temp")
 # ucd
 UCD_APP_DIR         = os.path.join(DATA_DIR, "ucd_app")         
 UC_IMG_DIR          = os.path.join(DATA_DIR, "json_img")    
-UCD_OFFICIAL_DIR    = os.path.join(DATA_DIR, "official")    
-UCD_CUSTOMER_DIR    = os.path.join(DATA_DIR, "customer")    
+UCD_OFFICIAL_DIR    = os.path.join(DATA_DIR, "ucd_official")    
+UCD_CUSTOMER_DIR    = os.path.join(DATA_DIR, "ucd_customer")    
 
 # customer file
 CUSTOMER_FILE_DIR   = os.path.join(DATA_DIR, "customer_file")  
@@ -20,6 +20,9 @@ CUSTOMER_FILE_DIR   = os.path.join(DATA_DIR, "customer_file")
 # label
 LABEL_DIR           = os.path.join(DATA_DIR, "labels")         
 LABEL_IMAGE_DIR     = os.path.join(LABEL_DIR, "images") 
+
+# dockerimage 
+DOCKRIMAGE_DIR      = os.path.join(DATA_DIR, "dockerimage")
 
 # redis
 REDIS_HOST          = "127.0.0.1"
