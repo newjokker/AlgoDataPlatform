@@ -15,8 +15,12 @@ from JoTools.utils.LogUtil import LogUtil
 log_path = os.path.join(LOG_DIR, APP_LOG_NAME)
 log = LogUtil.get_log(log_path, 5, "dataset", print_to_console=False)
 
-
 ucd_router = APIRouter(prefix="/ucd", tags=["ucd"])
+
+os.makedirs(UCD_CUSTOMER_DIR, exist_ok=True)
+os.makedirs(UCD_OFFICIAL_DIR, exist_ok=True)
+
+
 
 class GetTagInfo(BaseModel):
     is_official: bool
