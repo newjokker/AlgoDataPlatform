@@ -18,8 +18,8 @@ from JoTools.utils.LogUtil import LogUtil
 
 DATA_DIR            = r"/home/ldq/Data"
 IMAGE_SVN_ROOT      = r"svn://192.168.3.101/repository/基础镜像"
-LOG_DIR                 = os.path.join(DATA_DIR, "logs") 
-APP_LOG_NAME            = "app.log"
+LOG_DIR             = os.path.join(DATA_DIR, "logs") 
+APP_LOG_NAME        = "app.log"
 SVN_ROOT            = r"svn://192.168.3.101/repository"
 SVN_USERNAME        = "txkj"
 SVN_PASSWORD        = "txkj"
@@ -31,7 +31,7 @@ log_path = os.path.join(LOG_DIR, APP_LOG_NAME)
 log = LogUtil.get_log(log_path, 5, "dockerimage", print_to_console=False)
 
 os.makedirs(DOCKRIMAGE_DIR, exist_ok=True)
-doc_router = APIRouter(prefix="/dockerimage", tags=["dockerimage"])
+dockerimage_router = APIRouter(prefix="/dockerimage", tags=["dockerimage"])
 
 
 def get_all_base_image():
@@ -68,6 +68,13 @@ def sync_from_svn(image_path):
         print(f"* file exists : {save_path}")
 
 
+@dockerimage_router.get("/download_command/{file_path:path}")
+def get_download_command(file_path:str):
+    svn_download_command = f"svn export {IMAGE_SVN_ROOT}/{file_path}  save_path  --username {SVN_USERNAME} --password {SVN_PASSWORD}"
+    return svn_download_command
+
+
+
 
 # 管理 svn 上面的 基础镜像，和获取各个服务器上的 docker 镜像的信息
 
@@ -84,8 +91,7 @@ if __name__ == "__main__":
     print(local_models)
 
 
-    # for each in all_image:
-    #     print(each)
+    for each in all_image:
+        print(each)
 
-
-        # sync_from_svn(each)
+        sync_from_svn(each)
