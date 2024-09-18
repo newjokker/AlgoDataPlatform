@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from config import MYSQL_USER, LOG_DIR, MYSQL_PASSWORD, MYSQL_HOST, APP_LOG_NAME, MYSQL_DATABASE_NAME, MYSQL_TABLE_NAME
+from config import MYSQL_USER, LOG_DIR, MYSQL_PASSWORD, MYSQL_HOST, APP_LOG_NAME, MYSQL_TAG_DATABASE_NAME, MYSQL_TAG_TABLE_NAME
 from fastapi.exceptions import HTTPException
 import pymysql
 from typing import List
@@ -30,13 +30,13 @@ def get_tag_info_from_mysql():
             host=MYSQL_HOST,  
             user=MYSQL_USER, 
             password=MYSQL_PASSWORD,
-            database=MYSQL_DATABASE_NAME, 
+            database=MYSQL_TAG_DATABASE_NAME, 
             charset='utf8mb4', 
             cursorclass=pymysql.cursors.DictCursor
         )
 
         with connection.cursor() as cursor:
-            sql = f"SELECT * FROM {MYSQL_TABLE_NAME}"
+            sql = f"SELECT * FROM {MYSQL_TAG_TABLE_NAME}"
             cursor.execute(sql)
             rows = cursor.fetchall()
             for each in rows:
@@ -59,12 +59,12 @@ def delete_tag_info_from_mysql(dete_tag:DeteteTag):
             host=MYSQL_HOST,  
             user=MYSQL_USER, 
             password=MYSQL_PASSWORD,
-            database=MYSQL_DATABASE_NAME, 
+            database=MYSQL_TAG_DATABASE_NAME, 
             charset='utf8mb4', 
             cursorclass=pymysql.cursors.DictCursor
         )
         with connection.cursor() as cursor:
-            sql = f"DELETE FROM {MYSQL_TABLE_NAME} WHERE tag = %s"
+            sql = f"DELETE FROM {MYSQL_TAG_TABLE_NAME} WHERE tag = %s"
             cursor.execute(sql, (tag_name,))
             connection.commit()
             log.info(f"* Tag '{tag_name}' has been deleted.")
@@ -110,13 +110,13 @@ def add_tag_info_to_mysql(add_tag_info:AddTagInfo):
             host=MYSQL_HOST,  
             user=MYSQL_USER, 
             password=MYSQL_PASSWORD,
-            database=MYSQL_DATABASE_NAME, 
+            database=MYSQL_TAG_DATABASE_NAME, 
             charset='utf8mb4', 
             cursorclass=pymysql.cursors.DictCursor
         )
 
         with connection.cursor() as cursor:
-            check_sql = f"SELECT * FROM {MYSQL_TABLE_NAME} WHERE tag = %s"
+            check_sql = f"SELECT * FROM {MYSQL_TAG_TABLE_NAME} WHERE tag = %s"
             cursor.execute(check_sql, (tag_name,))
             existing_tag = cursor.fetchone()
 
@@ -124,7 +124,7 @@ def add_tag_info_to_mysql(add_tag_info:AddTagInfo):
                 log.error(f"* Tag '{tag_name}' already exists")
                 return {"status": "failed", "error_info": f"Tag '{tag_name}' already exists"}
 
-            sql = f"INSERT INTO {MYSQL_TABLE_NAME} (tag, tag_describe) VALUES (%s, %s)"
+            sql = f"INSERT INTO {MYSQL_TAG_TABLE_NAME} (tag, tag_describe) VALUES (%s, %s)"
             cursor.execute(sql, (tag_name, tag_describe))
             connection.commit()
             log.info(f"* Tag '{tag_name}' has been added successfully")

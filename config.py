@@ -31,7 +31,6 @@ DOCKRIMAGE_DIR      = os.path.join(DATA_DIR, "dockerimage")
 IMAGE_SVN_ROOT      = r"svn://192.168.3.101/repository/基础镜像"
 
 
-
 # redis
 REDIS_HOST          = "127.0.0.1"
 REDIS_PORT          = 6379
@@ -70,8 +69,10 @@ MYSQL_HOST                = "192.168.3.33"
 MYSQL_PORT                = 3306
 MYSQL_USER                = "root"
 MYSQL_PASSWORD            = "root123"
-MYSQL_DATABASE_NAME       = "SaturnTest"
-MYSQL_TABLE_NAME          = "UcdJsonTag"
+
+# tag
+MYSQL_TAG_DATABASE_NAME       = "SaturnTag"
+MYSQL_TAG_TABLE_NAME          = "UcdJsonTag"
 
 # log
 LOG_DIR                 = os.path.join(DATA_DIR, "logs") 

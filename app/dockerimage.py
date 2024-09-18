@@ -67,7 +67,6 @@ def sync_from_svn(image_path):
     else:
         print(f"* file exists : {save_path}")
 
-
 @dockerimage_router.get("/download_command/{file_path:path}")
 def get_download_command(file_path:str):
     svn_download_command = f"svn export {IMAGE_SVN_ROOT}/{file_path}  save_path  --username {SVN_USERNAME} --password {SVN_PASSWORD}"
