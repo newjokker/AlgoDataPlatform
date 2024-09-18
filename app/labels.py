@@ -9,7 +9,8 @@ from .tools import Label
 import subprocess
 import uuid
 
-log_path = os.path.join(LOG_DIR, APP_LOG_NAME)
+# label 单独开一个存储日志，因为需要进行恢复历史信息
+log_path = os.path.join(LOG_DIR, "labels")
 log = LogUtil.get_log(log_path, 5, "labels", print_to_console=False)
 
 label_router = APIRouter(prefix="/label", tags=["label"])

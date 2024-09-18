@@ -28,6 +28,9 @@ LABEL_IMAGE_DIR     = os.path.join(LABEL_DIR, "images")
 
 # dockerimage 
 DOCKRIMAGE_DIR      = os.path.join(DATA_DIR, "dockerimage")
+IMAGE_SVN_ROOT      = r"svn://192.168.3.101/repository/基础镜像"
+
+
 
 # redis
 REDIS_HOST          = "127.0.0.1"
@@ -40,7 +43,7 @@ SERVER_HOST         = "0.0.0.0"
 # SERVER_PORT         = 21101
 SERVER_PORT         = 11101
 SERVER_LOCAL_HOST   = "127.0.0.1"
-ENV_HOST            = os.environ.get("HOST_IP", "192.168.3.62")
+ENV_HOST            = os.environ.get("HOST_IP", "192.168.3.69")
 
 # svn
 SVN_ROOT            = r"svn://192.168.3.101/repository"

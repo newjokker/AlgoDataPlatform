@@ -43,7 +43,7 @@ def update_ucd_img_json_cache():
     pass
 
 @sync_router.get("/file/{file_path:path}")
-def update_ucd_img_json_cache(file_path:str):
+def update_files(file_path:str):
     # TODO: 传递相对位置，如果这个机器中有对应的文件的话，直接返回对应文件
 
     file_path = os.path.join(DATA_DIR, file_path)
