@@ -13,18 +13,17 @@ from fastapi.responses import HTMLResponse
 from JoTools.utils.TimeUtil import TimeUtil
 from JoTools.utils.JsonUtil import JsonUtil
 from JoTools.utils.LogUtil import LogUtil
+from config import UCD_CUSTOMER_DIR, UCD_OFFICIAL_DIR, r, REDIS_JSON_INFO, STASTIC_TAG_DIR, LOG_DIR, APP_LOG_NAME, DOCKRIMAGE_DIR, IMAGE_SVN_ROOT
 
-# from config import UCD_CUSTOMER_DIR, UCD_OFFICIAL_DIR, r, REDIS_JSON_INFO, STASTIC_TAG_DIR, LOG_DIR, APP_LOG_NAME, DOCKRIMAGE_DIR, IMAGE_SVN_ROOT
-
-DATA_DIR            = r"/home/ldq/Data"
-IMAGE_SVN_ROOT      = r"svn://192.168.3.101/repository/基础镜像"
-LOG_DIR             = os.path.join(DATA_DIR, "logs") 
-APP_LOG_NAME        = "app.log"
-SVN_ROOT            = r"svn://192.168.3.101/repository"
-SVN_USERNAME        = "txkj"
-SVN_PASSWORD        = "txkj"
-SVN_IGNORE_DIR      = {"基础镜像", "Other", "OTHER-专项"}
-DOCKRIMAGE_DIR      = os.path.join(DATA_DIR, "dockerimage")
+# DATA_DIR            = r"/home/ldq/Data"
+# IMAGE_SVN_ROOT      = r"svn://192.168.3.101/repository/基础镜像"
+# LOG_DIR             = os.path.join(DATA_DIR, "logs") 
+# APP_LOG_NAME        = "app.log"
+# SVN_ROOT            = r"svn://192.168.3.101/repository"
+# SVN_USERNAME        = "txkj"
+# SVN_PASSWORD        = "txkj"
+# SVN_IGNORE_DIR      = {"基础镜像", "Other", "OTHER-专项"}
+# DOCKRIMAGE_DIR      = os.path.join(DATA_DIR, "dockerimage")
 
 
 log_path = os.path.join(LOG_DIR, APP_LOG_NAME)
@@ -52,7 +51,7 @@ def get_all_base_image():
 def get_all_base_image_loacl():
     # official
     image_path_list = []
-    for each_image_path in FileOperationUtil.re_all_file(DOCKRIMAGE_DIR):
+    for i, j, each_image_path in os.walk(DOCKRIMAGE_DIR):
         image_path_list.append(each_image_path)
     return image_path_list
 
@@ -67,19 +66,27 @@ def sync_from_svn(image_path):
     else:
         print(f"* file exists : {save_path}")
 
+@dockerimage_router.get("/check")
+def check():
+    all_base_img = get_all_base_image()
+    log.info("* dockerimage check")
+    return {"status": "success", "image_list": all_base_img}
+
+@dockerimage_router.get("/check_local")
+def check_local():
+    all_base_img = get_all_base_image_loacl()
+    log.info("* dockerimage check")
+    return {"status": "success", "image_list": all_base_img}
+
 @dockerimage_router.get("/download_command/{file_path:path}")
-def get_download_command(file_path:str):
+async def get_download_command(file_path:str):
     svn_download_command = f"svn export {IMAGE_SVN_ROOT}/{file_path}  save_path  --username {SVN_USERNAME} --password {SVN_PASSWORD}"
     return svn_download_command
-
-
 
 
 # 管理 svn 上面的 基础镜像，和获取各个服务器上的 docker 镜像的信息
 
 # TODO: 将我平时用的基础镜像放在 svn 上面，我自己进行同步
-
-# TODO: 提供需要的 svn 命令，用于方便地在本地下载 文件，svn 命令老是去查很麻烦
 
 
 if __name__ == "__main__":

@@ -4,16 +4,16 @@ import os
 
 
 # common
-DATA_DIR            = r"/usr/data"
-# DATA_DIR            = r"/home/ldq/Data"
+# DATA_DIR            = r"/usr/data"
+DATA_DIR            = r"/home/ldq/Data"
 TEMP_DIR            = os.path.join(DATA_DIR, "temp")
 
 # ucd
-UCD_APP_DIR         = os.path.join(DATA_DIR, "ucd_app")         
-UC_IMG_DIR          = os.path.join(DATA_DIR, "json_img")    
-UCD_OFFICIAL_DIR    = os.path.join(DATA_DIR, "ucd_official")    
-UCD_CUSTOMER_DIR    = os.path.join(DATA_DIR, "ucd_customer")    
-UCD_EXE_PATH        = os.path.join(UCD_APP_DIR, "ucd")          # 可执行文件的地址，直接调用里面的同步功能
+UCD_APP_DIR         = os.path.join(DATA_DIR,    "ucd_app")         
+UC_IMG_DIR          = os.path.join(DATA_DIR,    "json_img")    
+UCD_OFFICIAL_DIR    = os.path.join(DATA_DIR,    "ucd_official")    
+UCD_CUSTOMER_DIR    = os.path.join(DATA_DIR,    "ucd_customer")    
+UCD_EXE_PATH        = os.path.join(UCD_APP_DIR, "ucd")                          # 可执行文件的地址，直接调用里面的同步功能
 
 # sync
 REMOTE_SYNC_DIR     = os.path.join(DATA_DIR, "sync")
@@ -65,14 +65,14 @@ UI_DATASET_PORT     = 11104
 IMG_RESIZE_MAX      = 1500          # resize image 的时候允许的最长边的长度，不要修改，修改之后缓存数据需要清空
 
 # Mysql
-MYSQL_HOST                = "192.168.3.33"
-MYSQL_PORT                = 3306
-MYSQL_USER                = "root"
-MYSQL_PASSWORD            = "root123"
+MYSQL_HOST                  = "192.168.3.33"
+MYSQL_PORT                  = 3306
+MYSQL_USER                  = "root"
+MYSQL_PASSWORD              = "root123"
 
 # tag
-MYSQL_TAG_DATABASE_NAME       = "SaturnTag"
-MYSQL_TAG_TABLE_NAME          = "UcdJsonTag"
+MYSQL_TAG_DATABASE_NAME     = "SaturnTag"
+MYSQL_TAG_TABLE_NAME        = "UcdJsonTag"
 
 # log
 LOG_DIR                 = os.path.join(DATA_DIR, "logs") 
@@ -84,7 +84,7 @@ STASTIC_TAG_DIR         = os.path.join(DATA_DIR, "stastic/stastic_tags")
 STASTIC_LABEL_DIR       = os.path.join(DATA_DIR, "stastic/stastic_labels")  
 STASTIC_SVN_MODEL_DIR   = os.path.join(DATA_DIR, "stastic/stastic_svn_model")  
 
-
+# redis
 r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=0)
 
 

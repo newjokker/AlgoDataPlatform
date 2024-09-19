@@ -14,6 +14,7 @@
 
 * docker build -t algo_data_platform:version -f Dockerfile . 
 
+
 ### 版本号码
 
 * v0.0.x  初步实现数据平台，可视化只是个 demo

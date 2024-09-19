@@ -40,6 +40,24 @@ def load_img_if_not_exists(uc):
 
     log.info(f"* load img from : http://192.168.3.111:11101/file/{uc}.jpg")
 
+def sort_ucd_by_date(ucd_path_list):
+    """将 ucd json 按照文件名中的日期进行排列，没有日期的放在最后面"""
+    ucd_path_info = []
+    for each_ucd_path in ucd_path_list:
+        if len(each_ucd_path) > 19:
+            try:
+                date_str = each_ucd_path[-19:]
+                each_time = time.mktime(time.strptime(date_str, "%Y-%m-%d_%H-%M-%S"))
+            except:
+                each_time = -1
+        else:
+            each_time = -1
+        ucd_path_info.append((each_ucd_path, each_time))
+    
+    ucd_path_info = sorted(ucd_path_info, key=lambda x:x[1], reverse=True)
+    sorted_ucd_path = list(zip(*ucd_path_info))[0]
+    return sorted_ucd_path
+
 def get_official_cache_list():
 
     global now_dataset_name
@@ -48,6 +66,7 @@ def get_official_cache_list():
     url = f"http://{SERVER_LOCAL_HOST}:{SERVER_PORT}/ucd/check"
     response = requests.get(url, headers={'Content-Type': 'application/json'})
     official_ucd_list = json.loads(response.text)["official"]
+    official_ucd_list = sort_ucd_by_date(official_ucd_list)
     return gr.Dropdown(choices=official_ucd_list, label="dataset", interactive=True)
 
 def get_customer_cache_list():
@@ -58,6 +77,7 @@ def get_customer_cache_list():
     url = f"http://{SERVER_LOCAL_HOST}:{SERVER_PORT}/ucd/check"
     response = requests.get(url, headers={'Content-Type': 'application/json'})
     customer_ucd_list = json.loads(response.text)["customer"]
+    customer_ucd_list = sort_ucd_by_date(customer_ucd_list)
     return gr.Dropdown(choices=customer_ucd_list, label="dataset", interactive=True)
 
 def load_info_from_json(ucd_path):

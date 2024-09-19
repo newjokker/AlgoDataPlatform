@@ -1,5 +1,6 @@
 
-
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse, Response
 from config import SERVER_HOST, SERVER_PORT
 from fastapi import FastAPI
 from app.img import img_router
@@ -13,8 +14,7 @@ from app.labels import label_router
 from app.customerfile import customer_file_router
 from app.menu import menu_router
 from app.stastic import stastic_router
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, Response
+from app.dockerimage import dockerimage_router
 
 app = FastAPI()
 
@@ -29,6 +29,7 @@ app.include_router(label_router)
 app.include_router(customer_file_router)
 app.include_router(stastic_router)
 app.include_router(menu_router)
+app.include_router(dockerimage_router)
 
 
 app.mount("/static", StaticFiles(directory="./app/static"), name="static")
