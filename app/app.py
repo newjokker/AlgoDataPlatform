@@ -11,6 +11,9 @@ log_path = os.path.join(LOG_DIR, APP_LOG_NAME)
 log = LogUtil.get_log(log_path, 5, "app", print_to_console=False)
 
 
+os.makedirs(UCD_APP_DIR, exist_ok=True)
+
+
 app_router = APIRouter(prefix="/app", tags=["app"])
 
 def get_version_list():
@@ -19,6 +22,10 @@ def get_version_list():
 
     for each_so_path in FileOperationUtil.re_all_file(UCD_APP_DIR):
         so_name = os.path.split(each_so_path)[1]
+        
+        if not str(so_name).startswith("ucd_v"):
+            continue
+
         version = so_name[4:]
         version_index_list = version[1:].split(".")
         version_index  = int(version_index_list[0]) * 1000000 + int(version_index_list[1]) * 1000 + int(version_index_list[2])
