@@ -5,6 +5,7 @@ import os
 
 # common
 # DATA_DIR            = r"/usr/data"
+# DATA_DIR            = r"/usr/DataPlatformCache"
 DATA_DIR            = r"/home/ldq/Data"
 TEMP_DIR            = os.path.join(DATA_DIR, "temp")
 

@@ -5,14 +5,11 @@
 import gradio as gr
 import requests
 import json
-import yaml
 from config import UI_TAGS_PORT, UI_HOST, SERVER_PORT, SERVER_LOCAL_HOST, LOG_DIR, UI_LOG_NAME
-import socket
 import os
 import time
 import copy
 from JoTools.utils.LogUtil import LogUtil
-from JoTools.utils.TimeUtil import TimeUtil
 
 log_path = os.path.join(LOG_DIR, UI_LOG_NAME)
 log = LogUtil.get_log(log_path, 5, "ui_manage_ucd_tags", print_to_console=False)
@@ -244,9 +241,9 @@ with gr.Blocks() as demo:
                 # get_tag_button  = gr.Button(value="Update Tags", min_width=1)
                 save_tag_button  = gr.Button(value="Save To File", min_width=1)
 
-            tags_name_text      = gr.Textbox(label='Tag Name', lines=1, placeholder="", interactive=True)
-            tags_des_text       = gr.Textbox(label='Tag Describe', lines=1, placeholder="", interactive=True)
-            create_tag_button   = gr.Button(value='Create Tag', min_width=1)
+            tags_name_text      = gr.Textbox(label='Tag Name', lines=1, placeholder="", interactive=True, visible=False)
+            tags_des_text       = gr.Textbox(label='Tag Describe', lines=1, placeholder="", interactive=True, visible=False)
+            create_tag_button   = gr.Button(value='Create Tag', min_width=1, interactive=True, visible=False)
 
 
     official_uc_dataset_dd.change(

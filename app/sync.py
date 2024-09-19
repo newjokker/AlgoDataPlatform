@@ -3,14 +3,12 @@ from fastapi import APIRouter
 from config import MYSQL_USER, LOG_DIR, MYSQL_PASSWORD, MYSQL_HOST, \
         APP_LOG_NAME, MYSQL_DATABASE_NAME, MYSQL_TABLE_NAME, REMOTE_SYNC_DIR ,\
         DATA_DIR
-
+from fastapi.responses import FileResponse, Response
 from fastapi.exceptions import HTTPException
 import pymysql
 from typing import List
 from pydantic import BaseModel
 import os
-import request
-
 from JoTools.utils.LogUtil import LogUtil
 
 log_path = os.path.join(LOG_DIR, APP_LOG_NAME)
@@ -21,6 +19,11 @@ sync_router = APIRouter(prefix="/sync", tags=["sync"])
 
 
 os.makedirs(REMOTE_SYNC_DIR, exist_ok=True)
+
+
+# 同步的命令
+# TODO: rsync -avu --progress ldq@192.168.3.33:/home/raid5/data_ucd/root_dir/json_img/* /usr/data/img_cache/
+
 
 
 # TODO: 这个同步是指在多个数据服务器平台之间进行同步，只要指定其他数据平台的 IP HOST, 就能直接使用其他数据平台的数据，同步到当前的数据平台上，这样就可以实现分布式部署，需要注意的是各个数据平台存在的版本可能不一样，需要有一个 md5 校验
@@ -48,7 +51,8 @@ def update_files(file_path:str):
 
     file_path = os.path.join(DATA_DIR, file_path)
     if os.path.exists(file_path):
-        return FileResponse(ucd_official_path, media_type = "application/octet-stream", filename=ucd_name)
+        # return FileResponse(ucd_official_path, media_type = "application/octet-stream", filename=ucd_name)
+        pass
     else:
         return HTTPException(status_code=500, detail=f"file not found")
 
