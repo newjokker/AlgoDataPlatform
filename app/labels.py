@@ -16,6 +16,7 @@ log = LogUtil.get_log(log_path, 5, "labels", print_to_console=False)
 label_router = APIRouter(prefix="/label", tags=["label"])
 
 os.makedirs(LABEL_DIR, exist_ok=True)
+os.makedirs(TEMP_DIR, exist_ok=True)
 
 class LabelInfo(BaseModel):
     json_str:str

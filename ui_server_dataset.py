@@ -15,8 +15,11 @@ from PIL import Image
 from prettytable import PrettyTable
 from JoTools.utils.LogUtil import LogUtil
 
+os.makedirs(TEMP_DIR, exist_ok=True)
+
 log_path = os.path.join(LOG_DIR, UI_LOG_NAME)
 log = LogUtil.get_log(log_path, 5, "ui_server_dataset", print_to_console=False)
+
 
 
 def get_image_size(image_path):

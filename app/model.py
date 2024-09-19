@@ -18,6 +18,7 @@ model_router = APIRouter(prefix="/model", tags=["model"])
 
 
 os.makedirs(MODEL_CUSTOMER_DIR, exist_ok=True)
+os.makedirs(TEMP_DIR, exist_ok=True)
 
 
 def get_model_name_and_version_from_svn_url(model_url):

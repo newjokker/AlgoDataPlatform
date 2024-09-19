@@ -4,10 +4,11 @@ import os
 
 
 # common
-# DATA_DIR            = r"/usr/data"
-# DATA_DIR            = r"/usr/DataPlatformCache"
-DATA_DIR            = r"/home/ldq/Data"
+DATA_DIR            = r"/usr/data_platform_cache"
 TEMP_DIR            = os.path.join(DATA_DIR, "temp")
+
+os.makedirs(DATA_DIR, exist_ok=True)
+
 
 # ucd
 UCD_APP_DIR         = os.path.join(DATA_DIR,    "ucd_app")         

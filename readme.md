@@ -4,7 +4,7 @@
 
 * docker rm -f algo_data_platform
 
-* docker run --name=algo_data_platform -e HOST_IP=192.168.3.69 --volume=/home/ldq/Data:/usr/data  -v /etc/localtime:/etc/localtime  -p 11101:11101 -p 11102:11102 -p 11103:11103 -p 11104:11104 -p 11105:11105 -p 11106:11106  -d  algo_data_platform:v0.3.1
+* docker run --name=algo_data_platform -e HOST_IP=192.168.3.69 --volume=/home/ldq/Data:/usr/data  -v /etc/localtime:/etc/localtime  -p 11101:11101 -p 11102:11102 -p 11103:11103 -p 11104:11104 -p 11105:11105 -p 11106:11106  -d  algo_data_platform:v0.3.2
 
 * docker build -t algo_data_platform:v0.2.8 -f Dockerfile . 
 
@@ -12,7 +12,7 @@
 
 * git clone ssh://git@192.168.3.108:2022/aigroup/algodataplatform.git
 
-* docker build -t algo_data_platform:version -f Dockerfile . 
+* docker build -t algo_data_platform:v0.3.2 -f Dockerfile . 
 
 
 ### 版本号码
@@ -28,6 +28,8 @@
 
 
 ### TODO
+
+* reload 通过接口去改配置函数，并重载服务，是否需要这个功能，增加一个重载配置文件的功能即可，看看怎么实现？
 
 * 减少部署难度，启动 docker 就能新部署一套数据平台
 
