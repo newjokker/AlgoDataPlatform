@@ -252,22 +252,22 @@ async def update_tags_to_json(update_info:UpdateTagInfo):
 
     return {"status": "success"}
 
-@ucd_router.get("/get_tags")
-async def get_tags_from_json(get_info:GetTagInfo):
+# @ucd_router.post("/get_tags")
+# async def get_tags_from_json(get_info:GetTagInfo):
 
-    is_official = get_info.is_official
-    ucd_name = get_info.ucd_name
-    json_path = _get_json_path(ucd_name, is_official)
+#     is_official = get_info.is_official
+#     ucd_name = get_info.ucd_name
+#     json_path = _get_json_path(ucd_name, is_official)
 
-    if not os.path.exists(json_path):
-        raise HTTPException(status_code=500, detail=f"json path not exist : {json_path}")
+#     if not os.path.exists(json_path):
+#         raise HTTPException(status_code=500, detail=f"json path not exist : {json_path}")
 
-    tags = []
-    with open(json_path, 'r', encoding="utf-8") as json_file:
-        json_info = json.load(json_file)
-        tags = json_info.get("tags", [])
+#     tags = []
+#     with open(json_path, 'r', encoding="utf-8") as json_file:
+#         json_info = json.load(json_file)
+#         tags = json_info.get("tags", [])
 
-    return {"tags": tags}
+#     return {"tags": tags}
 
 
 
