@@ -40,7 +40,7 @@ def update_ucd_customer():
     # TODO: 点击自动同步 ucd customer ，删除再下载，或者只下载没有的之类的功能
     pass
 
-@sync_router.get("/ucd_img_json_cache")
+@sync_router.get("/ucd_json_img_cache")
 def update_ucd_img_json_cache():
     # TODO: 点击扫描追踪的服务器的指定地址今天的新增数据有没有同步过来，也可以同步历史数据
     pass
@@ -55,4 +55,3 @@ def update_files(file_path:str):
         pass
     else:
         return HTTPException(status_code=500, detail=f"file not found")
-
