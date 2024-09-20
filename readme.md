@@ -4,7 +4,7 @@
 
 * docker rm -f algo_data_platform
 
-* docker run --name=algo_data_platform -e HOST_IP=192.168.3.69 --volume=/usr/data_platform_cache:/usr/data_platform_cache  -v /etc/localtime:/etc/localtime  -p 11101:11101 -p 11102:11102 -p 11103:11103 -p 11104:11104 -p 11105:11105 -p 11106:11106  -d  algo_data_platform:v0.3.2
+* docker run --name=algo_data_platform -e HOST_IP=192.168.3.69 --volume=/usr/data/data_platform_cache:/usr/data/data_platform_cache  -v /etc/localtime:/etc/localtime  -p 11101:11101 -p 11102:11102 -p 11103:11103 -p 11104:11104 -p 11105:11105 -p 11106:11106  -d  algo_data_platform:v0.3.2
 
 * docker build -t algo_data_platform:v0.2.8 -f Dockerfile . 
 
